@@ -1,16 +1,16 @@
 const YouTubeThumbnailToken = artifacts.require('./YouTubeThumbnailToken.sol')
+const TokenSales = artifacts.require('./TokenSales.sol')
 const fs = require('fs')
 
 module.exports = function (deployer) {
-  var name = "Youtude Thumbnail Token";
-  var symbol = "YTT";
 
-  deployer.deploy(YouTubeThumbnailToken, name, symbol)
+    //TokenSales contract을 배포할것이다, Youtudetoken의 address는 tokensales 컨트렉의 생성자 인자
+  deployer.deploy(TokenSales, YouTubeThumbnailToken.address)    
     .then(() => {
-      if (YouTubeThumbnailToken._json) {
+      if (TokenSales._json) {
         fs.writeFile(
-          'deployedABI',
-          JSON.stringify(YouTubeThumbnailToken._json.abi),
+          'deployedABI_TokenSales',
+          JSON.stringify(TokenSales._json.abi),
           (err) => {
             if (err) throw err
             console.log("파일에 ABI 입력 성공");
@@ -18,8 +18,8 @@ module.exports = function (deployer) {
       }
 
       fs.writeFile(
-        'deployedAddress',
-        YouTubeThumbnailToken.address,
+        'deployedAddress_TokenSales',
+        TokenSales.address,
         (err) => {
           if (err) throw err
           console.log("파일에 주소 입력 성공");
