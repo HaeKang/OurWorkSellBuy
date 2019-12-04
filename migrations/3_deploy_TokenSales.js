@@ -1,11 +1,11 @@
-const YouTubeThumbnailToken = artifacts.require('./YouTubeThumbnailToken.sol')
+const TestToken = artifacts.require('./TestToken.sol')
 const TokenSales = artifacts.require('./TokenSales.sol')
 const fs = require('fs')
 
 module.exports = function (deployer) {
 
-    //TokenSales contract을 배포할것이다, Youtudetoken의 address는 tokensales 컨트렉의 생성자 인자
-  deployer.deploy(TokenSales, YouTubeThumbnailToken.address)    
+    //TokenSales contract을 배포할것이다, TestToken address는 tokensales 컨트렉의 생성자 인자
+  deployer.deploy(TokenSales, TestToken.address)    
     .then(() => {
       if (TokenSales._json) {
         fs.writeFile(

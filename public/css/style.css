@@ -1,0 +1,333 @@
+/*
+  Theme Name: Imperial
+  Theme URL: https://bootstrapmade.com/imperial-free-onepage-bootstrap-template/
+  Author: BootstrapMade
+  Author URL: https://bootstrapmade.com
+*/
+/*--------------------------------------------------------------
+# General
+--------------------------------------------------------------*/
+
+
+/* 검색창 */
+.search fieldset {  
+	position: relative;  
+	display: inline-block;  
+	padding: 0 0 0 40px;  
+	background: #fff;  
+	border: none;  
+	border-radius: 5px; 
+} 
+
+.search input, .search button {  
+	position: relative;  
+	width: 200px;  
+	height: 50px;  
+	padding: 0;  
+	display: inline-block;  
+	float: left; 
+} 
+
+
+
+.search input {  
+	color: #666;  
+	z-index: 2;  
+	border: 0 none; 
+}
+
+
+.search input:focus {  
+	outline: 0 none; 
+} 
+
+.search input:focus + button {
+
+  -webkit-transform: translate(0, 0);
+
+      -ms-transform: translate(0, 0);
+
+          transform: translate(0, 0);
+
+  -webkit-transition-duration: 0.3s;
+
+          transition-duration: 0.3s;
+
+}
+
+.search input:focus + button .fa {
+
+  -webkit-transform: translate(0px, 0);
+
+      -ms-transform: translate(0px, 0);
+
+          transform: translate(0px, 0);
+
+  -webkit-transition-duration: 0.3s;
+
+          transition-duration: 0.3s;
+
+  color: #fff;
+
+}
+
+.search button {  z-index: 1;  width: 50px;  border: 0 none;  background: #ceb980;  cursor: pointer;  border-radius: 0 5px 5px 0;  
+
+  -webkit-transform: translate(-50px, 0);
+
+      -ms-transform: translate(-50px, 0);
+
+          transform: translate(-50px, 0);
+
+  -webkit-transition-duration: 0.3s;
+
+          transition-duration: 0.3s;
+
+}
+
+.search .fa-search {  
+	font-size: 1.4rem;  
+	color: #29abe2;  
+	z-index: 3;  
+	top: 25%; 
+
+  -webkit-transform: translate(-190px, 0); 
+
+      -ms-transform: translate(-190px, 0);
+
+          transform: translate(-190px, 0);
+
+  -webkit-transition-duration: 0.3s;
+
+          transition-duration: 0.3s;
+
+  -webkit-transition: all 0.1s ease-in-out;
+
+          transition: all 0.1s ease-in-out;
+
+}
+
+
+body {
+	background: #fff;
+	color: #666666;
+	font-family: "Nanum Gothic", sans-serif;
+}
+
+a {
+	color: #ff4952;
+	transition: 0.5s;
+}
+
+a:hover,
+a:active,
+a:focus {
+	color: #ff8288;
+	outline: none;
+	text-decoration: none;
+}
+
+p {
+	padding: 0;
+	margin: 0 0 30px 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: "Raleway", sans-serif;
+	font-weight: 400;
+	margin: 0 0 20px 0;
+	padding: 0;
+}
+
+
+
+/*--------------------------------------------------------------
+# Sections
+--------------------------------------------------------------*/
+/* Sections Common
+--------------------------------*/
+.section-title {
+	font-size: 32px;
+	color: #111;
+	text-transform: uppercase;
+	text-align: center;
+	font-weight: 700;
+}
+
+.section-title-write {
+	font-size: 32px;
+	color: #111;
+	text-transform: uppercase;
+	text-align: center;
+	font-weight: 700;
+}
+
+.section-description {
+	text-align: center;
+	margin-bottom: 40px;
+}
+
+.section-title-divider {
+	width: 50px;
+	height: 3px;
+	background: #ff4952;
+	margin: 0 auto;
+	margin-bottom: 20px;
+}
+
+/* Get Started Section
+--------------------------------*/
+#about {
+	background: #fff;
+	padding: 80px 0;
+}
+
+#about .about-img {
+	overflow: hidden;
+}
+
+#about .about-img img {
+	max-width: 100%;
+}
+
+@media (max-width: 768px) {
+	#about .about-img {
+		height: auto;
+	}
+
+	#about .about-img img {
+		margin-left: 0;
+		padding-bottom: 30px;
+	}
+}
+
+#about .about-content {
+	background: #fff;
+}
+
+#about .about-title {
+	color: #333;
+	font-weight: 700;
+	font-size: 28px;
+}
+
+#about .about-text {
+	line-height: 26px;
+	margin-bottom: 15px;
+}
+
+#about .about-text:last-child {
+	margin-bottom: 0;
+}
+
+#about .sns {
+	text-align: center;
+	margin-bottom: 40px;
+	word-spacing: 20px;
+}
+
+#about #primary_text {
+	color: #ff4952;
+}
+
+/* service Section
+--------------------------------*/
+#service {
+	background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9));
+	background-size: cover;
+	padding: 80px 0 60px 0;
+}
+
+#service .service-item {
+	margin-bottom: 20px;
+}
+
+#service .service-icon {
+	float: left;
+	background: #ff4952;
+	padding: 16px;
+	border-radius: 50%;
+	transition: 0.5s;
+	border: 1px solid #ff4952;
+}
+
+#service .service-icon i {
+	color: #fff;
+	font-size: 24px;
+}
+
+#service .service-item:hover .service-icon {
+	background: #fff;
+}
+
+#service .service-item:hover .service-icon i {
+	color: #ff4952;
+}
+
+#service .service-title {
+	margin-left: 80px;
+	font-weight: 700;
+	margin-bottom: 15px;
+	text-transform: uppercase;
+}
+
+#service .service-title a {
+	color: #111;
+}
+
+#service .service-description {
+	margin-left: 80px;
+	line-height: 24px;
+}
+
+#service button[type="find"] {
+	background: #ff4952;
+	border: 0;
+	padding: 10px 24px;
+	color: #fff;
+	transition: 0.4s;
+}
+
+#service button[type="find"]:hover {
+	background: #ff8288;
+	border: 2px solid #ff8288;
+	border: 0;
+	padding: 10px 24px;
+	color: #fff;
+	transition: 0.4s;
+}
+
+
+#service #store_list {
+	background: rgba(0, 0, 0, 0.1);
+	padding: 20px 0;
+}
+
+#service h3,
+h2 {
+	color: #111;
+}
+
+#service h4 {
+	font-family: "Nanum Gothic", sans-serif;
+}
+
+#service text {
+	font-family: "Nanum Gothic", sans-serif;
+}
+
+#service #title{
+	text-align: center;
+	margin: 0px auto;
+}
+
+#service #title img{
+	width: 70%;
+	height: auto;
+}
+
