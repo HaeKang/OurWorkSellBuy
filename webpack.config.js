@@ -89,6 +89,11 @@ module.exports = {
             });
         });
 
+        // 검색기능
+        app.post("/test2", function(req, res){           
+          console.log("test");
+      });
+
         
 
     }

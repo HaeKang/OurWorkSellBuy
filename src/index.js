@@ -123,8 +123,8 @@ const App = {
 			console.log(resolve);
 			balance = cav.utils.fromPeb(resolve, "KLAY");
 
-			$('#address').append('<br>' + '<p>' + '내 계정 주소: ' + walletInstance.address + '</p>' +
-				'<p> 내 계정 잔액: ' + balance + 'KLAY </p>');
+			$('#address').append(walletInstance.address);
+			$('#mymoney').append(balance + "KLAY" );
 		});
 
 		await this.displayMyTokensAndSale(walletInstance);
@@ -266,6 +266,29 @@ const App = {
 					var price = await this.getTokenPrice(tokenId); // 판매 가격
 					var owner = await this.getOwnerOf(tokenId); // 토큰 소유자
 					this.renderAllTokens(tokenId, ytt, metadata, price, owner, walletInstance);
+				})();
+			}
+		}
+	},
+
+	displayTrendTokens: async function () {
+		var totalSupply = parseInt(await this.getTotalSupply());
+		if (totalSupply === 0) {
+			
+		} else {
+			for (var i = 0; i < 3; i++) {
+				(async () => {
+					if(totalSupply - i >0){
+						var text = "#port" + (i+1);
+						var imgTag = $(text);
+
+						console.log(i);
+						console.log(text);
+
+						var tokenUri = await this.getTokenUri(totalSupply - i); 
+						var metadata = await this.getMetadata(tokenUri); 
+						imgTag.attr('src',metadata.properties.image.description);	
+					}
 				})();
 			}
 		}
@@ -628,8 +651,10 @@ window.addEventListener("load", function () {
 });
 
 $(document).ready(function () {
-	$("#notebox").click(function () {
 
+	App.displayTrendTokens();
+
+	$("#notebox").click(function () {
 		// 쪽지 불러오기
 		$.ajax({
 			url: '/test',
@@ -657,6 +682,11 @@ $(document).ready(function () {
 			$('#table_body').append('<tr><td>' + address + '</td><td>' + review + '</td><td></tr>')
 		}
 	}
+	
+	$('#portfolio-flters li').on( 'click', function() {
+		$("#portfolio-flters li").removeClass('filter-active');
+		$(this).addClass('filter-active');
+	});
 
 
 	// 쪽지 보내기
