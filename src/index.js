@@ -20,6 +20,7 @@ var ipfs = ipfsCilent({
 
 var base64_src;
 var my_address;
+var tokenOwner_address;
 
 const App = {
 	auth: {
@@ -163,7 +164,7 @@ const App = {
 
 		var spinner = this.showSpinner();
 
-		var id = $('#tokenId').val(); // 아이디는 일단 테스트 -> DB
+		var id = $('#tokenId').val(); // 작품아이디 -> DB
 		var img = base64_src; // 이미지
 		var des = $('#description').val(); // 한줄설명 -> DB
 
@@ -180,6 +181,29 @@ const App = {
 		}
 
 		try {
+
+			$.ajax({
+				url: '/tokencreate',
+				dataType: 'json',
+				async: true,
+				type: 'POST',
+				contentType: 'application/json; charset=UTF-8',
+				data: JSON.stringify({
+					"author": author,
+					"regi_date":dateCreated ,
+					"category":category ,
+					"work_id" :id ,
+					"description" :des ,
+					"image" : img
+				}),
+				success: function (data) {
+					
+				},
+				error: function (err) {
+					console.log("에러발생");
+				}
+			});
+
 			// 값들이 제대로 왔다면 토큰발행
 			const metaData = this.getERC721MetadataSchema(id, img, des); // img, 작가, 한줄평은 ipfs에 넣음
 			// metaData값을 json문자열로 변환하여 ipfs에 넣음
@@ -352,7 +376,8 @@ const App = {
 
 		this.getBasicTemplate(template, tokenId, ytt, metadata);
 		
-		template.find('.token-owner').text(owner.toUpperCase());
+		var owner_up = owner.toUpperCase()
+		template.find('.token-owner').html("<div id='token-owner-sub' value='"+ owner_up + "'>" + owner_up +"</div>");
 
 
 		// 토큰 구매 보이기
@@ -628,7 +653,7 @@ const App = {
 	},
 
 	// 이미지 미리보기 & 이미지 base64 전송
-	showIMG: async function (input) {
+	showIMG: function (input) {
 		if (input.files && input.files[0]) {
 			var filedr = new FileReader();
 			filedr.onload = function (e) {
@@ -637,7 +662,52 @@ const App = {
 			}
 			filedr.readAsDataURL(input.files[0]);
 		}
-	}
+	},
+
+	sendNote: function () {
+		var spinner = this.showSpinner();	
+		var contents = $('#note_content').val(); 
+		var sender = my_address;
+   		var receiver = tokenOwner_address;
+
+		if (!contents) {
+			spinner.stop();
+			alert("내용을 입력해주세요!");
+			return;
+		}
+
+		try {
+
+			$.ajax({
+				url: '/send',
+				dataType: 'json',
+				async: true,
+				type: 'POST',
+				contentType: 'application/json; charset=UTF-8',
+				data: JSON.stringify({
+					"sender": sender,
+					"receiver":receiver,
+					"contents":contents 
+				}),
+				success: function () {
+					
+				},
+				error: function (err) {
+					console.log("에러발생");
+				}
+			});
+
+			spinner.stop();
+			alert("쪽지를 성공적으로 보냈습니다!");
+			$('.modal-wrapper').toggleClass('open');
+			$('#service').toggleClass('blur-it');
+
+
+		} catch (err) {
+			console.error(err);
+			spinner.stop();
+		}
+	},
 
 };
 
@@ -673,7 +743,8 @@ $(document).ready(function () {
 			}
 		});
 	});
-
+	
+	// 쪽지함
 	function readNote(data){
 		$('#table_body').empty();
 		for (var i = 0; i < data.length; i++) {
@@ -682,12 +753,34 @@ $(document).ready(function () {
 			$('#table_body').append('<tr><td>' + address + '</td><td>' + review + '</td><td></tr>')
 		}
 	}
+
+	// 쪽지보내기
+	$(document).on('click','#token-owner-sub',function(e){
+		var address = e.currentTarget.textContent;
+		tokenOwner_address = address;
+
+		// 내 계정이면
+		if(my_address === address){
+			alert("test");
+		} else{
+			// 다른 계정이면
+			$('.modal-wrapper').toggleClass('open');
+			$('#service').toggleClass('blur-it');
+		}
+
+	});
+
+	// 쪽지보내기 창 닫기
+	$(document).on('click','.btn-close',function(e){
+		$('.modal-wrapper').toggleClass('open');
+		$('#service').toggleClass('blur-it');
+	});
+
 	
 	$('#portfolio-flters li').on( 'click', function() {
 		$("#portfolio-flters li").removeClass('filter-active');
 		$(this).addClass('filter-active');
 	});
-
 
 	// 쪽지 보내기
 	/*

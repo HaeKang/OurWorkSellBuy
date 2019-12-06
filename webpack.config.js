@@ -84,17 +84,32 @@ module.exports = {
 
             var sql = 'insert into note values(?,?,?)';
 	          connection.query(sql, [sender,receiver,contents] , function (error, result) {
-                res.send(result)
-                console.log(result)
+               console.log("error : " + error);
+               console.log("result : " + result);
             });
         });
 
-        // 검색기능
-        app.post("/test2", function(req, res){           
-          console.log("test");
-      });
+        // 토큰발생 DB로 전송
+        app.post("/tokencreate", function(req, res){           
+          var author = req.body.author;
+          var regi_date = req.body.regi_date;
+          var category = req.body.category;
+          var work_id = req.body.work_id;
+          var description = req.body.description;
+          var image = req.body.image;
 
-        
+          var sql = 'insert into category(author, regi_date, category, work_id, description) values(?,?,?,?,?)';
+          var sql2 = 'insert into image(image) values(?)'
+
+          connection.query(sql, [author, regi_date, category, work_id, description] , function (error, result) {
+              
+          });
+
+          connection.query(sql2, [image] , function (error, result) {
+           
+        });
+
+      });
 
     }
   }

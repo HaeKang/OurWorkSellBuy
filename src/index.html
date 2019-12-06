@@ -378,6 +378,8 @@
 							<option value="풍경">풍경</option>
 							<option value="인물">인물</option>
 							<option value="동물">동물</option>
+							<option value="음식">음식</option>
+							<option value="기타">기타</option>
 						</select>      
          			</div>               
        		 </div>        
@@ -418,6 +420,28 @@
 			</div><!-- /.modal -->
 
 
+<!-- 쪽지함 Modal -->
+<div class="modal-wrapper">
+	<div class="modal">
+	  <div class="head">
+		<a class="btn-close trigger">
+		  <i class="fa fa-times" aria-hidden="true"></i>
+		</a>
+	  </div>
+	  <div class="content">
+		  <div class="good-job">
+			<i class="fas fa-envelope-open-text" aria-hidden="true"></i>
+			<h1>토큰소유자에게 쪽지를 보냅니다!</h1>
+		  </div>
+
+		  <div>
+				<input type="text" name="" id="note_content">
+				<button type="button" class="btn btn-primary btn-create" onclick="App.sendNote()">제출</button>
+			</div>
+
+	  </div>
+	</div>
+  </div>
 
 
 </body>
@@ -458,8 +482,9 @@
 				<br /><br />
 				<strong>작품ID</strong>: <span class="video-id"></span><br />
 				<strong>작품설명</strong>: <span class="author"></span><br />
-				<strong>게시일</strong>: <span class="date-created"></span><br />
-				<strong>토큰소유자</strong>: <span class="token-owner"></span><br />
+				<strong>게시일</strong>: <span class="date-created"></span><br /> <br>
+				<strong>토큰소유자</strong><div class="token-owner"></div><br />
+
 			</div>
 			<div class="panel-footer clearfix">
 				<div class="buy-token" style="display: none;">
@@ -467,7 +492,7 @@
 						<h5 class="token-price" style="color:green;"></h5>
 					</div>
 					<div class="col-sm-6 col-md-4">
-						<button type="button" class="btn btn-default btn-buy" onclick="App.buyToken(this)">구매</button>
+						<button type="button" class="btn btn-default btn-buy" id="token_create" onclick="App.buyToken(this)">구매</button>
 					</div>
 				</div>
 			</div>
@@ -505,6 +530,8 @@
 			return false;
 		}
 	}
+
+
 </script>
 
 <script src="../public/js/extention/choices.js"></script>
