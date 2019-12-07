@@ -278,7 +278,8 @@ a.btn {
 }
   
   .content,
-  .content-show {
+  .content-show,
+  .content_list {
 	padding-top : 10px;
 	text-align: center;
   }
@@ -299,6 +300,10 @@ a.btn {
   .good-job h1 {
 	font-size: 15px;
 	color: #353535;
+  }
+
+  .listClick{
+	color: #e2525c;
   }
 
 

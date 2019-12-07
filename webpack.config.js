@@ -66,16 +66,16 @@ module.exports = {
             res.sendFile(__dirname + '/src/test.html');         
         });
         
-        // 쪽지함 불러오기
-        app.post("/notebox", bodyParser.json(), function(req, res){           
+        // 쪽지함 불러오기 4개씩 끊어서
+        app.post("/notebox/:page", bodyParser.json(), function(req, res){           
           var address = req.body.address;
+          var post = req.body.page;
 
           var sql = 'select sender, contents, note_id from note where receiver = ? order by note_id desc';
           
           connection.query(sql, [address] , function (error, result) {
-            if(error){ console.log(error); }
+            if(error){ console.log(error); }  
             res.send(result)
-            console.log(result)
           });
         });
 
@@ -112,7 +112,8 @@ module.exports = {
           var sql = 'delete from note where note_id = ?';
           connection.query(sql, [note_id] , function (error, result) {
              if(error){ console.log(error); }
-             console.log("result : " + result);
+             console.log("note_id 삭제 : " + note_id);
+             res.send(result);
           });
       });
 

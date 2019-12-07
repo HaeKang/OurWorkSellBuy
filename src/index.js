@@ -22,6 +22,8 @@ var base64_src;
 var my_address;
 var tokenOwner_address = "";
 var note_sender = "";
+var note_id;
+
 
 const App = {
 	auth: {
@@ -692,6 +694,64 @@ const App = {
 		}
 	},
 
+	// 쪽지함 목록 불러오기 4개씩
+	readNote : function(data, page){
+		$('#table_body').empty();
+		$('.content_list').empty();
+
+		for (var i = 4 * (page-1); i < page*4; i++) {
+			if(data[i]){
+				var address = data[i].sender;
+				var review = data[i].contents;
+				var note_id = data[i].note_id;
+				$('#table_body').append('<tr class="note_select" id="' + note_id + '"><td class="table_address">' + address + '</td><td>' + review + '</td><td></tr>')
+			}
+		}
+
+		for(var i = 0; i < data.length / 4;  i++){
+			if( i === 0 ){
+				$('.content_list').append('<text class = "listClick" id="note_list_page" onclick="App.readNotePage(' + (i+1) +', this)">' + (i+1) + "</text>" );
+			}else {
+				$('.content_list').append('<text id="note_list_page" onclick="App.readNotePage(' + (i+1) +', this)">' + (i+1) + "</text>" );
+			}
+			$('.content_list').append('<text>  </text>');
+		}
+	},
+
+	readNotePage : function(page, event){
+		var go_url = '/notebox/' + page;
+		// css 변경
+		$('#note_list_page').attr("class","");
+		$(event).addClass("listClick");
+
+		$.ajax({
+			url: go_url,
+			dataType: 'json',
+			async: true,
+			type: 'POST',
+			contentType: 'application/json; charset=UTF-8',
+			data: JSON.stringify({
+				"address": my_address
+			}),
+			success: function (data) {
+				$('#table_body').empty();
+
+				for (var i = 4 * (page-1); i < page*4; i++) {
+					if(data[i]){
+						var address = data[i].sender;
+						var review = data[i].contents;
+						var note_id = data[i].note_id;
+						$('#table_body').append('<tr class="note_select" id="' + note_id + '"><td class="table_address">' + address + '</td><td>' + review + '</td><td></tr>')
+					}
+				}
+			},
+			error: function (err) {
+
+			}
+		});
+
+	},
+
 	sendNote: function () {
 
 		var contents = $('#note_content').val(); 
@@ -715,37 +775,38 @@ const App = {
 		}
 
 		try {
+				$.ajax({
+					url: '/send',
+					dataType: 'json',
+					async: true,
+					type: 'POST',
+					contentType: 'application/json; charset=UTF-8',
+					data: JSON.stringify({
+						"sender": sender,
+						"receiver":receiver,
+						"contents":contents 
+					}),
+					success: function () {
+						
+					},
+					error: function (err) {
+						console.log("에러발생");
+					}
+				});
 
-			$.ajax({
-				url: '/send',
-				dataType: 'json',
-				async: true,
-				type: 'POST',
-				contentType: 'application/json; charset=UTF-8',
-				data: JSON.stringify({
-					"sender": sender,
-					"receiver":receiver,
-					"contents":contents 
-				}),
-				success: function () {
-					
-				},
-				error: function (err) {
-					console.log("에러발생");
-				}
-			});
-
-			alert("쪽지를 성공적으로 보냈습니다!");
-			$('.modal-wrapper').toggleClass('open');
-			$('#service').toggleClass('blur-it');
-			tokenOwner_address = "";
-			note_sender = "";
+				alert("쪽지를 성공적으로 보냈습니다!");
+				$('.modal-wrapper').toggleClass('open');
+				$('#service').toggleClass('blur-it');
+				tokenOwner_address = "";
+				note_sender = "";
+				$("#note_content").replaceWith( $("#note_content").clone(true) );
+				$("#note_content").val("");
 
 		} catch (err) {
 			console.error(err);
 			spinner.stop();
 		}
-	},
+	}
 
 };
 
@@ -766,9 +827,10 @@ $(document).ready(function () {
 		// 쪽지 불러오기
 		$('.modal-wrapper-receive').toggleClass('open');
 		$('#service').toggleClass('blur-it');
+		$('#note_list_page').removeClass("listClick");
 
 		$.ajax({
-			url: '/notebox',
+			url: '/notebox/1',
 			dataType: 'json',
 			async: true,
 			type: 'POST',
@@ -777,24 +839,14 @@ $(document).ready(function () {
 				"address": my_address
 			}),
 			success: function (data) {
-				readNote(data);
+				App.readNote(data, 1);
 			},
 			error: function (err) {
 
 			}
 		});
 	});
-	
-	// 쪽지함 목록 불러오기
-	function readNote(data){
-		$('#table_body').empty();
-		for (var i = 0; i < data.length; i++) {
-			var address = data[i].sender;
-			var review = data[i].contents;
-			var note_id = data[i].note_id;
-			$('#table_body').append('<tr class="note_select" id="' + note_id + '"><td class="table_address">' + address + '</td><td>' + review + '</td><td></tr>')
-		}
-	}
+
 
 	// 쪽지함 창 닫기
 	$(document).on('click','.btn-close-receive',function(e){
@@ -803,9 +855,11 @@ $(document).ready(function () {
 	});
 
 	// 쪽지 클릭
-	$(document).on('click', '.note_select', function(e){
-		var note_id = this.id;
-
+	$(document).on('click', '.note_select', function(){
+		$('.modal-wrapper-content').addClass('open');
+		note_id = this.id;
+		console.log(note_id);
+		
 		$.ajax({
 			url: '/note_read',
 			dataType: 'json',
@@ -823,57 +877,54 @@ $(document).ready(function () {
 			}
 		});
 
-		// 쪽지보기 창 닫기
-		$(document).on('click','.btn-close-show',function(e){
-			$('.modal-wrapper-content').toggleClass('open');
-		});
-
-		// 쪽지보기 삭제 버튼 클릭
-		$(document).on('click','.btn-send-delete',function(e){
-			$.ajax({
-				url: '/note_delete',
-				dataType: 'json',
-				async: true,
-				type: 'POST',
-				contentType: 'application/json; charset=UTF-8',
-				data: JSON.stringify({
-					"note_id": note_id
-				}),
-				success: function () {
-				
-				},
-				error: function (err) {
-	
-				}
-			});
-
-			$('.modal-wrapper-content').toggleClass('open');
-			$('.modal-wrapper-receive').toggleClass('open');
-			$('#service').toggleClass('blur-it');
-			alert("삭제했습니다!");
-
-		});
-
-	});
+	});		
 
 	function readNoteData(data){
 		var sender = data[0].sender;
 		note_sender = sender;
 		console.log("쪽지 보낸이 : " + note_sender);
 		var contents = data[0].contents;
-		$('.modal-wrapper-content').toggleClass('open');
 
 		$('.content-show').empty();
 		$('.content-show').html(sender + " : " + contents);
 		
 	}
 
+	// 쪽지보기 창 닫기
+	$(document).on('click','.btn-close-show',function(){
+		$('.modal-wrapper-content').removeClass('open');
+		console.log("쪽지보기닫기");
+	});	
 
+	// 쪽지 삭제 버튼 클릭
+	$(document).on('click','.btn-send-delete',function(){
+		console.log(note_id);
+		$.ajax({
+			url: '/note_delete',
+			dataType: 'json',
+			async: false,
+			type: 'POST',
+			contentType: 'application/json; charset=UTF-8',
+			data: JSON.stringify({
+				"note_id": note_id
+			}),
+			success: function (data) {
+				$('.modal-wrapper-content').removeClass('open');
+				$('.modal-wrapper-receive').toggleClass('open');
+				$('#service').toggleClass('blur-it');
+				alert("삭제했습니다!");
+			},
+			error: function (err) {
+
+			}
+		});	
+
+	});
 
 
 	// 쪽지 답장보내기 창 열기
 	$(document).on('click', '.btn-send-note', function(){
-		$('.modal-wrapper-content').toggleClass('open');
+		$('.modal-wrapper-content').removeClass('open');
 		$('.modal-wrapper-receive').toggleClass('open');
 		$('.modal-wrapper').toggleClass('open');		
 		
@@ -902,9 +953,9 @@ $(document).ready(function () {
 
 		note_sender = "";
 		tokenOwner_address = "";
+		$("#note_content").replaceWith( $("#note_content").clone(true) );
+		$("#note_content").val("");
 	});
-
-
 
 	
 	$('#portfolio-flters li').on( 'click', function() {
