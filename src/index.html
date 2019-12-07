@@ -43,7 +43,7 @@
 </head>
 
 <body>
-	
+
 	<!-- start section navbar -->
 	<nav id="main-nav">
 		<div class="row">
@@ -86,15 +86,15 @@
 				<div class="col-lg-12">
 					<div class="about-descr">
 						<p class="p-heading">Our Work Sell Buy</p>
-						<p class="separator">우리 서비스는 현재 klaytn baobab 네트워크에서 실행되고있습니다.<br> 
-						<a href="https://baobab.wallet.klaytn.com/" target="_blank">https://baobab.wallet.klaytn.com/</a> 사이트에 접속해서 계정을 만든 후 이용해 주세요.</p>
+						<p class="separator">우리 서비스는 현재 klaytn baobab 네트워크에서 실행되고있습니다.<br>
+							<a href="https://baobab.wallet.klaytn.com/" target="_blank">https://baobab.wallet.klaytn.com/</a> 사이트에 접속해서 계정을 만든 후 이용해 주세요.</p>
 					</div>
 
 				</div>
 			</div>
 		</div>
 		<br>
-	<br>
+		<br>
 	</div>
 	<!-- end section about us -->
 	<!-- start section services -->
@@ -151,130 +151,130 @@
 	<!-- end section services -->
 
 
-  <section id="service">
-	<div class="container wow fadeInUp">
-		<div class="row">
-			<div class="col-md-12" id="title">
-				<img src="../public/img/logo2.png" alt="">
-				<p class="section-description">로그인 후 서비스 이용 가능</p>
+	<section id="service">
+		<div class="container wow fadeInUp">
+			<div class="row">
+				<div class="col-md-12" id="title">
+					<img src="../public/img/logo2.png" alt="">
+					<p class="section-description">로그인 후 서비스 이용 가능</p>
+				</div>
+
 			</div>
-
 		</div>
-	</div>
 
-	<div class="container wow fadeInUp">
-		<div class="row">
-			<div class="col-md-12 text-center">
-				<button type="button" class="btn btn-info" id="login" data-toggle="modal" data-target="#loginModal">
-					로그인
-				</button>
-				<button type="button" class="btn btn-info" id="logout" style="display: none;" onclick="App.handleLogout()">
-					로그아웃
-				</button>
-				<div class="afterLogin" style="display: none;">
-					<br><br>
-					<i class="far fa-address-card fa-2x"></i>
-					<p id = "address"></p>
-					<i class="fas fa-hand-holding-usd fa-2x"></i>
-					<p id = "mymoney"></p>
+		<div class="container wow fadeInUp">
+			<div class="row">
+				<div class="col-md-12 text-center">
+					<button type="button" class="btn btn-info" id="login" data-toggle="modal" data-target="#loginModal">
+						로그인
+					</button>
+					<button type="button" class="btn btn-info" id="logout" style="display: none;" onclick="App.handleLogout()">
+						로그아웃
+					</button>
+					<div class="afterLogin" style="display: none;">
+						<br><br>
+						<i class="far fa-address-card fa-2x"></i>
+						<p id="address"></p>
+						<i class="fas fa-hand-holding-usd fa-2x"></i>
+						<p id="mymoney"></p>
+					</div>
 				</div>
 			</div>
-		</div>
 
-		<div id="spin">
-		
-		</div>
-	
-		<div class="row">
-			<div class="afterLogin" style="display: none;">
-				<button type="button" class="btn btn-warning pull-left" id="createToken" data-toggle="modal" data-target="#createTokenModal">
-					작품 토큰 발행
-				</button>
-				<button type="button" class="btn btn-info" id="notebox" data-toggle="modal" data-target="#createNoteModal">
-					쪽지함
-				</button>
-				<button type="button" class="btn btn-success pull-right" id="approve" onclick="App.approve()">
-					토큰 판매 승인
-				</button>
-				<button type="button" class="btn btn-danger pull-right" id="cancelApproval" onclick="App.cancelApproval()">
-					토큰 판매 승인 취소
-				</button>
+			<div id="spin">
+
 			</div>
-		</div>
-	
-		<div class="row">
-			<div class="afterLogin" style="display: none;">
-				<div id="tabs">
-					<ul>
-						<li><a href="#myTokens">내 보유 작품</a></li>
-						<li><a href="#myTokensSale">내 판매 중 작품</a></li>
-						<li><a href="#allTokens">모든 작품</a></li>
-					</ul>
-					<div id="myTokens"></div>
-					<div id="allTokens">
-						<div id="search">
-							<div class="s003">
-								<form class="search_form">
-									<div class="inner-form">
-										<div class="input-field first-wrap">
-											<div class="input-select">
-												<select data-trigger="" name="choices-single-defaul">
-													<option placeholder="">Category</option>
-													<option>작품아이디</option>
-													<option>토큰아이디</option>
-													<option>키워드</option>
-												</select>
+
+			<div class="row">
+				<div class="afterLogin" style="display: none;">
+					<button type="button" class="btn btn-warning pull-left" id="createToken" data-toggle="modal" data-target="#createTokenModal">
+						작품 토큰 발행
+					</button>
+					<button type="button" class="btn btn-info" id="notebox">
+						쪽지함
+					</button>
+					<button type="button" class="btn btn-success pull-right" id="approve" onclick="App.approve()">
+						토큰 판매 승인
+					</button>
+					<button type="button" class="btn btn-danger pull-right" id="cancelApproval" onclick="App.cancelApproval()">
+						토큰 판매 승인 취소
+					</button>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="afterLogin" style="display: none;">
+					<div id="tabs">
+						<ul>
+							<li><a href="#myTokens">내 보유 작품</a></li>
+							<li><a href="#myTokensSale">내 판매 중 작품</a></li>
+							<li><a href="#allTokens">모든 작품</a></li>
+						</ul>
+						<div id="myTokens"></div>
+						<div id="allTokens">
+							<div id="search">
+								<div class="s003">
+									<form class="search_form">
+										<div class="inner-form">
+											<div class="input-field first-wrap">
+												<div class="input-select">
+													<select data-trigger="" name="choices-single-defaul">
+														<option placeholder="">Category</option>
+														<option>작품아이디</option>
+														<option>토큰아이디</option>
+														<option>키워드</option>
+													</select>
+												</div>
+											</div>
+											<div class="input-field second-wrap">
+												<input id="search" type="text" placeholder="Enter Keywords?" />
+											</div>
+											<div class="input-field third-wrap">
+												<button class="btn-search" type="button">
+													<svg class="svg-inline--fa fa-search fa-w-16" aria-hidden="true" data-prefix="fas" data-icon="search" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+														<path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path>
+													</svg>
+												</button>
 											</div>
 										</div>
-										<div class="input-field second-wrap">
-											<input id="search" type="text" placeholder="Enter Keywords?" />
-										</div>
-										<div class="input-field third-wrap">
-											<button class="btn-search" type="button">
-												<svg class="svg-inline--fa fa-search fa-w-16" aria-hidden="true" data-prefix="fas" data-icon="search" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-													<path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path>
-												</svg>
-											</button>
-										</div>
-									</div>
-								</form>
-							</div>
+									</form>
+								</div>
 
-							<div class="portfolio-list">
+								<div class="portfolio-list">
 									<ul class="nav list-unstyled" id="portfolio-flters">
 										<li class="filter filter-active">all</li>
 										<li class="filter">landscape</li>
 										<li class="filter">character</li>
-										<li class="filter"> animal</li>
-										<li class="filter"> food</li>
+										<li class="filter">animal</li>
+										<li class="filter">food</li>
 										<li class="filter">etc</li>
-									</ul>		
+									</ul>
 								</div>
 
+							</div>
+							<div id="allTokens"></div>
 						</div>
-						<div id="allTokens"></div>
+						<div id="myTokensSale"></div>
 					</div>
-					<div id="myTokensSale"></div>
-				</div>
 				</div>
 			</div>
 		</div>
-	</div>
-		
-</section>
+		</div>
 
-<br>
-<br>
-<br>
+	</section>
 
-<!-- start section portfolio -->
-<div id="portfolio" class="text-center paddsection">
+	<br>
+	<br>
+	<br>
+
+	<!-- start section portfolio -->
+	<div id="portfolio" class="text-center paddsection">
 
 		<div class="container">
 			<div class="section-title text-center">
 				<br>
 				<br>
-					<img src="../public/img/logo3.png" alt="" id="port_logo">
+				<img src="../public/img/logo3.png" alt="" id="port_logo">
 			</div>
 		</div>
 
@@ -290,16 +290,16 @@
 					<div class="portfolio-container">
 
 						<div class="col-lg-4 col-md-6 portfolio-thumbnail all branding uikits webdesign">
-								<img src="../public/img/overlay-bg.jpg" alt="img" id="port1">
+							<img src="../public/img/overlay-bg.jpg" alt="img" id="port1">
 						</div>
 
 						<div class="col-lg-4 col-md-6 portfolio-thumbnail all branding uikits webdesign">
-								<img src="../public/img/overlay-bg.jpg" alt="img" id="port2">
+							<img src="../public/img/overlay-bg.jpg" alt="img" id="port2">
 						</div>
 
 
 						<div class="col-lg-4 col-md-6 portfolio-thumbnail all branding uikits webdesign">
-								<img src="../public/img/overlay-bg.jpg" alt="img" id="port3">
+							<img src="../public/img/overlay-bg.jpg" alt="img" id="port3">
 						</div>
 
 					</div>
@@ -314,15 +314,15 @@
 	<br>
 	<br>
 	<div id="footer" class="text-center">
-			<div class="container">
-				<p> 테스트 </p>
-			</div>
+		<div class="container">
+			<p> 테스트 </p>
 		</div>
-		<!-- End section footer -->
-	
+	</div>
+	<!-- End section footer -->
 
-<br>
-<br>
+
+	<br>
+	<br>
 	<!-- Modals -->
 
 	<div class="modal fade" tabindex="-1" role="dialog" id="loginModal">
@@ -370,78 +370,98 @@
 					</div>
 					<div class="form-group">
 						<label for="title">한줄설명</label>
-						<input type="text" class="form-control" id="description">           
-					 </div>     
-					 <div class="form-group">
+						<input type="text" class="form-control" id="description">
+					</div>
+					<div class="form-group">
 						<label for="title">카테고리</label>
-						<select name="" id="category"> 
+						<select name="" id="category">
 							<option value="풍경">풍경</option>
 							<option value="인물">인물</option>
 							<option value="동물">동물</option>
 							<option value="음식">음식</option>
 							<option value="기타">기타</option>
-						</select>      
-         			</div>               
-       		 </div>        
-        			<div class=" modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
-						<button type="button" class="btn btn-primary btn-create" onclick="App.createToken()" disabled>제출</button>
+						</select>
 					</div>
-				</div><!-- /.modal-content -->
-			</div><!-- /.modal-dialog -->
-		</div><!-- /.modal -->
+				</div>
+				<div class=" modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+					<button type="button" class="btn btn-primary btn-create" onclick="App.createToken()" disabled>제출</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
 
-
-		<!-- 쪽지함 -->
-		<div class="modal fade" tabindex="-1" role="dialog" id="createNoteModal">
-			<div class="modal-dialog modal-sm">
-				<div class="modal-content">
-					<div class="modal-body">
-						<h5>쪽지함</h3>
-							<table class="table table-hover">
-								<thead>
-									<tr>
-										<th>보낸이</th>
-										<th>쪽지</th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody id="table_body">
-				
-								</tbody>
-							</table>
-			  </div>                   
-			</div>        
-			<div class=" modal-footer">
-							<button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
-						</div>
-					</div><!-- /.modal-content -->
-				</div><!-- /.modal-dialog -->
-			</div><!-- /.modal -->
-
-
-<!-- 쪽지함 Modal -->
-<div class="modal-wrapper">
+  <!-- 쪽지함 Modal -->
+  <div class="modal-wrapper-receive">
 	<div class="modal">
 	  <div class="head">
-		<a class="btn-close trigger">
+		<a class="btn-close-receive trigger">
 		  <i class="fa fa-times" aria-hidden="true"></i>
 		</a>
 	  </div>
-	  <div class="content">
-		  <div class="good-job">
-			<i class="fas fa-envelope-open-text" aria-hidden="true"></i>
-			<h1>토큰소유자에게 쪽지를 보냅니다!</h1>
-		  </div>
-
-		  <div>
-				<input type="text" name="" id="note_content">
-				<button type="button" class="btn btn-primary btn-create" onclick="App.sendNote()">제출</button>
+	  <div class="content-receive">
+			<div class="content-icon">
+				<i class="fas fa-envelope-open-text" aria-hidden="true"></i>
 			</div>
-
+			<table class="table table-hover">
+					<thead>
+						<tr>
+							<th>보낸이</th>
+							<th>쪽지</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody id="table_body">
+	
+					</tbody>
+				</table>
 	  </div>
 	</div>
   </div>
+
+  <!-- 쪽지글 Modal -->
+  <div class="modal-wrapper-content">
+	<div class="modal">
+	  <div class="head">
+		<a class="btn-close-show trigger">
+		  <i class="fa fa-times" aria-hidden="true"></i>
+		</a>
+		<a class="btn-send-note trigger">
+			<i class="far fa-paper-plane" aria-hidden="true"></i>
+		</a>
+		<a class="btn-send-delete trigger">
+			<i class="fas fa-trash"  aria-hidden="true"></i>
+		</a>
+	  </div>
+	  <div class="content-show">
+			
+	  </div>
+	</div>
+  </div>
+
+
+	<!-- 쪽지보내기 Modal -->
+	<div class="modal-wrapper">
+		<div class="modal">
+			<div class="head">
+				<a class="btn-close send trigger">
+					<i class="fa fa-times" aria-hidden="true"></i>
+				</a>
+			</div>
+			<div class="content">
+				<div class="good-job">
+					<i class="fas fa-envelope-open-text" aria-hidden="true"></i>
+					<h1>쪽지를 보냅니다</h1>
+				</div>
+
+				<div>
+					<input type="text" name="" id="note_content">
+					<button type="button" class="btn btn-primary btn-create" onclick="App.sendNote()">제출</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
 
 
 </body>
@@ -483,7 +503,8 @@
 				<strong>작품ID</strong>: <span class="video-id"></span><br />
 				<strong>작품설명</strong>: <span class="author"></span><br />
 				<strong>게시일</strong>: <span class="date-created"></span><br /> <br>
-				<strong>토큰소유자</strong><div class="token-owner"></div><br />
+				<strong>토큰소유자</strong>
+				<div class="token-owner"></div><br />
 
 			</div>
 			<div class="panel-footer clearfix">
@@ -523,57 +544,66 @@
 
 
 <script>
-	function check(){
-		if(document.search.keyWord.value==''){
-			alert('검색어를 입력하세요'); 
+	function check() {
+		if (document.search.keyWord.value == '') {
+			alert('검색어를 입력하세요');
 			document.search.keyWord.focus();
 			return false;
 		}
 	}
 
-
 </script>
 
 <script src="../public/js/extention/choices.js"></script>
 <script>
-  const choices = new Choices('[data-trigger]',
-  {
-	searchEnabled: false,
-	itemSelectText: '',
-  });
+	const choices = new Choices('[data-trigger]', {
+		searchEnabled: false,
+		itemSelectText: '',
+	});
 
 </script>
 
 <style>
-		@keyframes spinner-line-fade-more {
-		  0%, 100% {
+	@keyframes spinner-line-fade-more {
+
+		0%,
+		100% {
 			opacity: 0;
-		  }
-		  1% {
-			opacity: 1;
-		  }
 		}
-	  
-		@keyframes spinner-line-fade-quick {
-		  0%, 39%, 100% {
+
+		1% {
+			opacity: 1;
+		}
+	}
+
+	@keyframes spinner-line-fade-quick {
+
+		0%,
+		39%,
+		100% {
 			opacity: 0.25;
-		  }
-		  40% {
-			opacity: 1;
-		  }
 		}
-	  
-		@keyframes spinner-line-fade-default {
-		  0%, 100% {
+
+		40% {
+			opacity: 1;
+		}
+	}
+
+	@keyframes spinner-line-fade-default {
+
+		0%,
+		100% {
 			opacity: 0.22;
-		  }
-		  1% {
+		}
+
+		1% {
 			opacity: 1;
-		  }
 		}
-	  
-		.panel-footer {
-		  height: 56px;   
-		  overflow: hidden;
-		}
-	  </style>
+	}
+
+	.panel-footer {
+		height: 56px;
+		overflow: hidden;
+	}
+
+</style>

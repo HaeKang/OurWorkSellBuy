@@ -210,7 +210,9 @@ a.btn {
 	background: #e2525c;
   }
   
-  .modal-wrapper {
+  .modal-wrapper,
+  .modal-wrapper-receive,
+  .modal-wrapper-content {
 	width: 100%;
 	height: 100%;
 	position: fixed;
@@ -221,12 +223,16 @@ a.btn {
 	transition: all 0.25s ease-in-out;
   }
   
-  .modal-wrapper.open {
+  .modal-wrapper.open,
+  .modal-wrapper-receive.open,
+  .modal-wrapper-content.open {
 	opacity: 1;
 	visibility: visible;
   }
   
-  .modal-wrapper .modal {
+  .modal-wrapper .modal ,
+  .modal-wrapper-receive .modal,
+  .modal-wrapper-content .modal{
 	width: 600px;
 	height: 400px;
 	display: block;
@@ -239,10 +245,13 @@ a.btn {
 	transition: all 0.5s ease-in-out;
   }
   
-  .modal-wrapper.open .modal {
+  .modal-wrapper.open .modal,
+  .modal-wrapper-receive.open .modal,
+  .modal-wrapper-content.open .modal {
 	margin-top: -200px;
 	opacity: 1;
   }
+
   
   .head { 
 	width: 100%;
@@ -252,17 +261,36 @@ a.btn {
 	background: #e2525c;
   }
   
-  .btn-close {
+  .btn-close,
+  .btn-close-receive,
+  .btn-close-show,
+  .btn-send-note,
+  .btn-send-delete{
 	font-size: 28px;
 	display: block;
 	float: right;
 	color: #fff;
   }
+
+  .btn-send-note,
+  .btn-send-delete{
+	padding-right: 10px;
+}
   
-  .content {
+  .content,
+  .content-show {
 	padding-top : 10px;
 	text-align: center;
   }
+
+  .content-receive{
+	padding-top : 10px;
+  }
+
+  .content-icon{
+	text-align: center;
+  }
+
 
   .good-job .fa-envelope-open-text {
 	font-size: 30px;
@@ -271,4 +299,12 @@ a.btn {
   .good-job h1 {
 	font-size: 15px;
 	color: #353535;
+  }
+
+
+  /* 쪽지함 */
+
+  .table_address{
+	font-size: 10px;
+	width: 30%;
   }

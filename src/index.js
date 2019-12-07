@@ -20,7 +20,8 @@ var ipfs = ipfsCilent({
 
 var base64_src;
 var my_address;
-var tokenOwner_address;
+var tokenOwner_address = "";
+var note_sender = "";
 
 const App = {
 	auth: {
@@ -171,6 +172,19 @@ const App = {
 		var author = this.getWallet().address; // 작성자(올리는사람 지갑 주소) -> 블록체인, DB
 		var dateCreated = $('#date').val(); // 게시일 -> 블록체인, DB
 		var category = $('#category').val();	// 카테고리 -> 블록체인, DB
+		var eng_category;
+
+		if(category === "풍경"){
+			eng_category = "landscape";
+		} else if (category === "인물"){
+			eng_category = "character";
+		} else if (category === "동물"){
+			eng_category = "animal";
+		} else if (category === "음식"){
+			eng_category = "food";
+		} else{
+			eng_category = "etc";
+		}
 
 
 		if (!dateCreated || !img || !id || !author || !des || !category) {
@@ -179,6 +193,7 @@ const App = {
 			alert("모두 입력해주세요");
 			return;
 		}
+
 
 		try {
 
@@ -190,10 +205,10 @@ const App = {
 				contentType: 'application/json; charset=UTF-8',
 				data: JSON.stringify({
 					"author": author,
-					"regi_date":dateCreated ,
-					"category":category ,
-					"work_id" :id ,
-					"description" :des ,
+					"regi_date":dateCreated,
+					"category":eng_category,
+					"work_id" :id,
+					"description" :des,
 					"image" : img
 				}),
 				success: function (data) {
@@ -654,21 +669,44 @@ const App = {
 
 	// 이미지 미리보기 & 이미지 base64 전송
 	showIMG: function (input) {
-		if (input.files && input.files[0]) {
-			var filedr = new FileReader();
-			filedr.onload = function (e) {
-				$('#imgPreview').attr('src', e.target.result);
-				base64_src = e.target.result; // base64 코드
+		var fileNm = $('#img_test-id').val();
+		if(fileNm != ""){
+			var ext = fileNm.slice(fileNm.lastIndexOf(".") + 1).toLowerCase();
+ 
+    		if (!(ext == "jpg" || ext == "png")) {
+					alert("이미지파일 (.jpg, .png) 만 업로드 가능합니다.");
+					$("#img_test-id").replaceWith( $("#img_test-id").clone(true) );
+					$("#img_test-id").val("");
+       			 	return false;
 			}
-			filedr.readAsDataURL(input.files[0]);
+			else{
+				if (input.files && input.files[0]) {
+					var filedr = new FileReader();
+					filedr.onload = function (e) {
+						$('#imgPreview').attr('src', e.target.result);
+						base64_src = e.target.result; // base64 코드
+					}
+					filedr.readAsDataURL(input.files[0]);
+				}
+			}
 		}
 	},
 
 	sendNote: function () {
-		var spinner = this.showSpinner();	
+
 		var contents = $('#note_content').val(); 
 		var sender = my_address;
-   		var receiver = tokenOwner_address;
+		var receiver = "";
+
+		if(tokenOwner_address != ""){
+			receiver = tokenOwner_address;
+			console.log("토큰주인 : " + receiver);
+		} else if (note_sender != ""){
+			receiver = note_sender
+			console.log("쪽지답장 : " + receiver);
+		}
+
+		console.log(receiver);
 
 		if (!contents) {
 			spinner.stop();
@@ -697,11 +735,11 @@ const App = {
 				}
 			});
 
-			spinner.stop();
 			alert("쪽지를 성공적으로 보냈습니다!");
 			$('.modal-wrapper').toggleClass('open');
 			$('#service').toggleClass('blur-it');
-
+			tokenOwner_address = "";
+			note_sender = "";
 
 		} catch (err) {
 			console.error(err);
@@ -726,8 +764,11 @@ $(document).ready(function () {
 
 	$("#notebox").click(function () {
 		// 쪽지 불러오기
+		$('.modal-wrapper-receive').toggleClass('open');
+		$('#service').toggleClass('blur-it');
+
 		$.ajax({
-			url: '/test',
+			url: '/notebox',
 			dataType: 'json',
 			async: true,
 			type: 'POST',
@@ -744,15 +785,99 @@ $(document).ready(function () {
 		});
 	});
 	
-	// 쪽지함
+	// 쪽지함 목록 불러오기
 	function readNote(data){
 		$('#table_body').empty();
 		for (var i = 0; i < data.length; i++) {
 			var address = data[i].sender;
 			var review = data[i].contents;
-			$('#table_body').append('<tr><td>' + address + '</td><td>' + review + '</td><td></tr>')
+			var note_id = data[i].note_id;
+			$('#table_body').append('<tr class="note_select" id="' + note_id + '"><td class="table_address">' + address + '</td><td>' + review + '</td><td></tr>')
 		}
 	}
+
+	// 쪽지함 창 닫기
+	$(document).on('click','.btn-close-receive',function(e){
+		$('.modal-wrapper-receive').toggleClass('open');
+		$('#service').toggleClass('blur-it');
+	});
+
+	// 쪽지 클릭
+	$(document).on('click', '.note_select', function(e){
+		var note_id = this.id;
+
+		$.ajax({
+			url: '/note_read',
+			dataType: 'json',
+			async: true,
+			type: 'POST',
+			contentType: 'application/json; charset=UTF-8',
+			data: JSON.stringify({
+				"note_id": note_id
+			}),
+			success: function (data) {
+				readNoteData(data);
+			},
+			error: function (err) {
+
+			}
+		});
+
+		// 쪽지보기 창 닫기
+		$(document).on('click','.btn-close-show',function(e){
+			$('.modal-wrapper-content').toggleClass('open');
+		});
+
+		// 쪽지보기 삭제 버튼 클릭
+		$(document).on('click','.btn-send-delete',function(e){
+			$.ajax({
+				url: '/note_delete',
+				dataType: 'json',
+				async: true,
+				type: 'POST',
+				contentType: 'application/json; charset=UTF-8',
+				data: JSON.stringify({
+					"note_id": note_id
+				}),
+				success: function () {
+				
+				},
+				error: function (err) {
+	
+				}
+			});
+
+			$('.modal-wrapper-content').toggleClass('open');
+			$('.modal-wrapper-receive').toggleClass('open');
+			$('#service').toggleClass('blur-it');
+			alert("삭제했습니다!");
+
+		});
+
+	});
+
+	function readNoteData(data){
+		var sender = data[0].sender;
+		note_sender = sender;
+		console.log("쪽지 보낸이 : " + note_sender);
+		var contents = data[0].contents;
+		$('.modal-wrapper-content').toggleClass('open');
+
+		$('.content-show').empty();
+		$('.content-show').html(sender + " : " + contents);
+		
+	}
+
+
+
+
+	// 쪽지 답장보내기 창 열기
+	$(document).on('click', '.btn-send-note', function(){
+		$('.modal-wrapper-content').toggleClass('open');
+		$('.modal-wrapper-receive').toggleClass('open');
+		$('.modal-wrapper').toggleClass('open');		
+		
+	});
 
 	// 쪽지보내기
 	$(document).on('click','#token-owner-sub',function(e){
@@ -761,7 +886,7 @@ $(document).ready(function () {
 
 		// 내 계정이면
 		if(my_address === address){
-			alert("test");
+			
 		} else{
 			// 다른 계정이면
 			$('.modal-wrapper').toggleClass('open');
@@ -774,35 +899,20 @@ $(document).ready(function () {
 	$(document).on('click','.btn-close',function(e){
 		$('.modal-wrapper').toggleClass('open');
 		$('#service').toggleClass('blur-it');
+
+		note_sender = "";
+		tokenOwner_address = "";
 	});
+
+
 
 	
 	$('#portfolio-flters li').on( 'click', function() {
 		$("#portfolio-flters li").removeClass('filter-active');
 		$(this).addClass('filter-active');
+		console.log(this.textContent);
 	});
 
-	// 쪽지 보내기
-	/*
-	$.ajax({
-		url: '/send',
-		dataType: 'json',
-		async: true,
-		type: 'POST',
-		contentType: 'application/json; charset=UTF-8',
-		data: JSON.stringify({
-			"sender": my_address,
-			"receiver" : "test",
-			"contents" : "test"
-		}),
-		success: function (data) {
-			alert("쪽지를 보냈습니다!");
-		},
-		error: function (err) {
-
-		}
-	});
-	*/
 });
 
 var opts = {

@@ -67,13 +67,29 @@ module.exports = {
         });
         
         // 쪽지함 불러오기
-        app.post("/test", bodyParser.json(), function(req, res){           
-            var address = req.body.address;
-            var sql = 'select sender, contents from note where receiver = ?';
-	          connection.query(sql, [address] , function (error, result) {
-                res.send(result)
-                console.log(result)
-            });
+        app.post("/notebox", bodyParser.json(), function(req, res){           
+          var address = req.body.address;
+
+          var sql = 'select sender, contents, note_id from note where receiver = ? order by note_id desc';
+          
+          connection.query(sql, [address] , function (error, result) {
+            if(error){ console.log(error); }
+            res.send(result)
+            console.log(result)
+          });
+        });
+
+        // 쪽지 글 보기
+        app.post("/note_read", bodyParser.json(), function(req, res){           
+          var note_id = req.body.note_id;
+
+          var sql = 'select sender, contents from note where note_id = ?';
+
+	        connection.query(sql, [note_id] , function (error, result) {
+            if(error){ console.log(error); }
+            res.send(result)
+            console.log(result)
+          });
         });
 
         // 쪽지 보내기
@@ -82,12 +98,23 @@ module.exports = {
             var receiver = req.body.receiver;
             var contents = req.body.contents;
 
-            var sql = 'insert into note values(?,?,?)';
+            var sql = 'insert into note(sender,receiver,contents) values(?,?,?)';
 	          connection.query(sql, [sender,receiver,contents] , function (error, result) {
-               console.log("error : " + error);
+               if(error){ console.log(error); }
                console.log("result : " + result);
             });
         });
+
+        // 쪽지 삭제하기
+        app.post("/note_delete", bodyParser.json(), function(req, res){           
+          var note_id = req.body.note_id;
+
+          var sql = 'delete from note where note_id = ?';
+          connection.query(sql, [note_id] , function (error, result) {
+             if(error){ console.log(error); }
+             console.log("result : " + result);
+          });
+      });
 
         // 토큰발생 DB로 전송
         app.post("/tokencreate", function(req, res){           
