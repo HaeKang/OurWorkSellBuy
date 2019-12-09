@@ -66,6 +66,7 @@ module.exports = {
             res.sendFile(__dirname + '/src/test.html');         
         });
         
+        
         // 쪽지함 불러오기 4개씩 끊어서
         app.post("/notebox/:page", bodyParser.json(), function(req, res){           
           var address = req.body.address;
@@ -78,6 +79,7 @@ module.exports = {
             res.send(result)
           });
         });
+
 
         // 쪽지 글 보기
         app.post("/note_read", bodyParser.json(), function(req, res){           
@@ -92,6 +94,7 @@ module.exports = {
           });
         });
 
+
         // 쪽지 보내기
         app.post("/send", bodyParser.json(), function(req, res){           
             var sender = req.body.sender;
@@ -105,6 +108,7 @@ module.exports = {
             });
         });
 
+
         // 쪽지 삭제하기
         app.post("/note_delete", bodyParser.json(), function(req, res){           
           var note_id = req.body.note_id;
@@ -116,6 +120,7 @@ module.exports = {
              res.send(result);
           });
       });
+
 
         // 토큰발생 DB로 전송
         app.post("/tokencreate", function(req, res){           

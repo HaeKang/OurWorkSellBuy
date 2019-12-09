@@ -19,10 +19,12 @@ var ipfs = ipfsCilent({
 });
 
 var base64_src;
-var my_address;
 var tokenOwner_address = "";
 var note_sender = "";
 var note_id;
+var img_input;
+
+
 
 
 const App = {
@@ -33,7 +35,6 @@ const App = {
 	},
 
 	//#region 계정 인증
-
 	start: async function () {
 		const walletFromSession = sessionStorage.getItem('walletInstance');
 		if (walletFromSession) {
@@ -82,6 +83,7 @@ const App = {
 
 	handleLogout: async function () {
 		this.removeWallet();
+		localStorage.clear();
 		location.reload();
 	},
 
@@ -106,7 +108,7 @@ const App = {
 		cav.klay.accounts.wallet.add(walletInstance)
 		sessionStorage.setItem('walletInstance', JSON.stringify(walletInstance));
 		this.changeUI(walletInstance);
-		my_address = walletInstance.address.toUpperCase();
+		localStorage.setItem("my_address",walletInstance.address.toUpperCase())
 	},
 
 	reset: function () {
@@ -175,6 +177,7 @@ const App = {
 		var dateCreated = $('#date').val(); // 게시일 -> 블록체인, DB
 		var category = $('#category').val();	// 카테고리 -> 블록체인, DB
 		var eng_category;
+		
 
 		if(category === "풍경"){
 			eng_category = "landscape";
@@ -198,41 +201,19 @@ const App = {
 
 
 		try {
-
-			$.ajax({
-				url: '/tokencreate',
-				dataType: 'json',
-				async: true,
-				type: 'POST',
-				contentType: 'application/json; charset=UTF-8',
-				data: JSON.stringify({
-					"author": author,
-					"regi_date":dateCreated,
-					"category":eng_category,
-					"work_id" :id,
-					"description" :des,
-					"image" : img
-				}),
-				success: function (data) {
-					
-				},
-				error: function (err) {
-					console.log("에러발생");
-				}
-			});
-
 			// 값들이 제대로 왔다면 토큰발행
 			const metaData = this.getERC721MetadataSchema(id, img, des); // img, 작가, 한줄평은 ipfs에 넣음
 			// metaData값을 json문자열로 변환하여 ipfs에 넣음
 			var res = await ipfs.add(Buffer.from(JSON.stringify(metaData)));
-			await this.mintYTT(id, author, dateCreated, category, res[0].hash);
+			await this.mintYTT(id, author, dateCreated, category, res[0].hash, eng_category, des, img);
 		} catch (err) {
 			console.error(err);
+			alert("네트워크 오류가 생겼습니다. 다시 제출 버튼을 눌러주세요.");
 			spinner.stop();
 		}
 	},
 
-	mintYTT: async function (id, author, dateCreated, category, hash) {
+	mintYTT: async function (id, author, dateCreated, category, hash ,eng_category , des, img) {
 		// contract 계정이 gas비용 대납
 		const sender = this.getWallet(); // 로그인한 사용자 정보
 		const feePayer = cav.klay.accounts.wallet.add('0x04d3278bd11e1e577804f5841968e359ec95c9226fce9d79e09876f6a953ce85');
@@ -257,6 +238,30 @@ const App = {
 				if (receipt.transactionHash) {
 					console.log("https://ipfs.infura.io/ipfs/" + hash);
 					alert(receipt.transactionHash);
+
+					// DB에 넣기
+					$.ajax({
+							url: '/tokencreate',
+							dataType: 'json',
+							async: true,
+							type: 'POST',
+							contentType: 'application/json; charset=UTF-8',
+							data: JSON.stringify({
+								"author": author,
+								"regi_date":dateCreated,
+								"category":eng_category,
+								"work_id" :id,
+								"description" :des,
+								"image" : img
+							}),
+						success: function (data) {
+
+						},
+						error: function (err) {
+							console.log("에러발생");
+						}
+					});
+
 					location.reload();
 				}
 			});
@@ -669,26 +674,63 @@ const App = {
 
 	},
 
+	ImgSizeCheck : function(img){
+		var width = img.naturalWidth;
+		var height = img.naturalHeight;
+		console.log(width + " , " + height);
+
+		$('#temp_img').remove();
+
+
+		if(width < 80 || height < 80 || !width  || !height ){
+			alert("이미지 파일 크기가 너무 작습니다!");
+			$("#img_test-id").replaceWith( $("#img_test-id").clone(true) );
+			$("#img_test-id").val("");
+			$('#imgPreview').attr('src', "");
+			img_input = "";
+		} else{
+			var filedr = new FileReader();
+			filedr.onload = function (e) {
+
+				$('#imgPreview').attr('src', e.target.result);
+				base64_src = e.target.result; // base64 코드
+
+			}
+			filedr.readAsDataURL(img_input.files[0]);
+			img_input = "";
+		}
+
+		
+	},
+
 	// 이미지 미리보기 & 이미지 base64 전송
 	showIMG: function (input) {
 		var fileNm = $('#img_test-id').val();
+		img_input = input;
+
 		if(fileNm != ""){
 			var ext = fileNm.slice(fileNm.lastIndexOf(".") + 1).toLowerCase();
- 
+			
+			// 이미지파일이 아니면
     		if (!(ext == "jpg" || ext == "png")) {
+					
 					alert("이미지파일 (.jpg, .png) 만 업로드 가능합니다.");
 					$("#img_test-id").replaceWith( $("#img_test-id").clone(true) );
 					$("#img_test-id").val("");
-       			 	return false;
-			}
-			else{
+					$('#imgPreview').attr('src', "");
+					img_input = "";
+					return false;
+
+			} else{
 				if (input.files && input.files[0]) {
 					var filedr = new FileReader();
 					filedr.onload = function (e) {
-						$('#imgPreview').attr('src', e.target.result);
-						base64_src = e.target.result; // base64 코드
+						$('body').append('<img src="" id="temp_img" style="display:none;" onload="App.ImgSizeCheck(this)"/>');
+						console.log("temp_img 추가");
+						
+						$('#temp_img').attr('src', e.target.result);  				
 					}
-					filedr.readAsDataURL(input.files[0]);
+					filedr.readAsDataURL(input.files[0]);	
 				}
 			}
 		}
@@ -724,6 +766,7 @@ const App = {
 		$('#note_list_page').attr("class","");
 		$(event).addClass("listClick");
 
+
 		$.ajax({
 			url: go_url,
 			dataType: 'json',
@@ -731,7 +774,7 @@ const App = {
 			type: 'POST',
 			contentType: 'application/json; charset=UTF-8',
 			data: JSON.stringify({
-				"address": my_address
+				"address": localStorage.getItem("my_address")
 			}),
 			success: function (data) {
 				$('#table_body').empty();
@@ -755,7 +798,7 @@ const App = {
 	sendNote: function () {
 
 		var contents = $('#note_content').val(); 
-		var sender = my_address;
+		var sender = localStorage.getItem("my_address");
 		var receiver = "";
 
 		if(tokenOwner_address != ""){
@@ -828,6 +871,7 @@ $(document).ready(function () {
 		$('.modal-wrapper-receive').toggleClass('open');
 		$('#service').toggleClass('blur-it');
 		$('#note_list_page').removeClass("listClick");
+		var my_address = 
 
 		$.ajax({
 			url: '/notebox/1',
@@ -836,7 +880,7 @@ $(document).ready(function () {
 			type: 'POST',
 			contentType: 'application/json; charset=UTF-8',
 			data: JSON.stringify({
-				"address": my_address
+				"address": localStorage.getItem("my_address")
 			}),
 			success: function (data) {
 				App.readNote(data, 1);
@@ -936,7 +980,7 @@ $(document).ready(function () {
 		tokenOwner_address = address;
 
 		// 내 계정이면
-		if(my_address === address){
+		if(localStorage.getItem("my_address") === address){
 			
 		} else{
 			// 다른 계정이면
