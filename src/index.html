@@ -14,6 +14,9 @@
 	<link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
 
 
+
+
+
 	<!-- Google Fonts -->
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700,700i|Raleway:300,400,500,700,800" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap&subset=korean" rel="stylesheet">
@@ -219,16 +222,17 @@
 										<div class="inner-form">
 											<div class="input-field first-wrap">
 												<div class="input-select">
-													<select data-trigger="" name="choices-single-defaul">
+													<select data-trigger="" name="choices-single-defaul" id="select_search_type" onchange="SearchType()">
 														<option placeholder="">Category</option>
 														<option>작품아이디</option>
 														<option>토큰아이디</option>
 														<option>키워드</option>
+														<option>등록날짜</option>
 													</select>
 												</div>
 											</div>
 											<div class="input-field second-wrap">
-												<input id="search" type="text" placeholder="Enter Keywords?" />
+												<input id="search_text" type="text" placeholder="Enter Keywords?"  autocomplete="off"/>
 											</div>
 											<div class="input-field third-wrap">
 												<button class="btn-search" type="button">
@@ -253,7 +257,7 @@
 								</div>
 
 							</div>
-							<div id="allTokens"></div>
+							<div id="allTokens2"></div>
 						</div>
 						<div id="myTokensSale"></div>
 					</div>
@@ -367,7 +371,7 @@
 					</div>
 					<div class="form-group">
 						<label for="title">게시일</label>
-						<input type="text" class="form-control" id="date">
+						<input type="text" class="form-control" id="date" autocomplete="off">
 					</div>
 					<div class="form-group">
 						<label for="title">한줄설명</label>
@@ -542,7 +546,7 @@
 	</div>
 </div>
 
-
+<input type="text" id = "testDatePicker">
 </html>
 
 
@@ -555,6 +559,18 @@
 		}
 	}
 
+	function SearchType(){
+		var select = $("#select_search_type option:selected").val();
+		if(select == "등록날짜"){
+			$("#search_text").datepicker({
+				dateFormat:"yy-mm-dd"
+			});
+		} else{
+			$("#search_text").datepicker("destroy");
+		}
+
+	}
+
 </script>
 
 <script src="../public/js/extention/choices.js"></script>
@@ -563,6 +579,16 @@
 		searchEnabled: false,
 		itemSelectText: '',
 	});
+
+	$(function () {
+        $("#date").datepicker({
+			dateFormat:"yy-mm-dd"
+		});
+	});
+
+
+
+	
 
 </script>
 

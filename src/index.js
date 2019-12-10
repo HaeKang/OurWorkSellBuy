@@ -300,7 +300,7 @@ const App = {
 	displayAllTokens: async function (walletInstance) {
 		var totalSupply = parseInt(await this.getTotalSupply());
 		if (totalSupply === 0) {
-			$('#allTokens').text("현재 발행된 토큰이 없습니다.");
+			$('#allTokens2').text("현재 발행된 토큰이 없습니다.");
 		} else {
 			for (var i = 0; i < totalSupply; i++) {
 				(async () => {
@@ -341,21 +341,21 @@ const App = {
 	},
 
 
-	displayFindTokens: async function (walletInstance) {
-		var totalSupply = parseInt(await this.getTotalSupply());
-		if (totalSupply === 0) {
-			$('#allTokens').text("현재 발행된 토큰이 없습니다.");
+	displayFindTokens: async function (address, tokenIdList) {
+		if (tokenIdList.length == 0) {
+			$('#allTokens2').text("해당하는 토큰이 없습니다.");
 		} else {
-			for (var i = 0; i < totalSupply; i++) {
+			$('#allTokens2').empty();
+			for (var i = 0; i < tokenIdList.length; i++) {
 				(async () => {
 					// tokenId 받아옴
-					var tokenId = await this.getTokenByIndex(i);
+					var tokenId = tokenIdList[i];
 					var tokenUri = await this.getTokenUri(tokenId); // token uri(infa였나 그거 주소 meta데이터 갖고있는 주소)
 					var ytt = await this.getYTT(tokenId); // ytt 클래스
 					var metadata = await this.getMetadata(tokenUri); // meta데이터
 					var price = await this.getTokenPrice(tokenId); // 판매 가격
 					var owner = await this.getOwnerOf(tokenId); // 토큰 소유자
-					this.renderAllTokens(tokenId, ytt, metadata, price, owner, walletInstance);
+					this.renderSearchTokens(tokenId, ytt, metadata, price, owner, address);
 				})();
 			}
 		}
@@ -393,7 +393,7 @@ const App = {
 	},
 
 	renderAllTokens: function (tokenId, ytt, metadata, price, owner, walletInstance) {
-		var tokens = $('#allTokens');
+		var tokens = $('#allTokens2');
 		var template = $('#AllTokensTemplate');
 
 		this.getBasicTemplate(template, tokenId, ytt, metadata);
@@ -409,6 +409,35 @@ const App = {
 
 			// 로그인한 회원이 판매중인 토큰 주인이라면
 			if (owner.toUpperCase() === walletInstance.address.toUpperCase()) {
+				template.find('.btn-buy').attr('disabled', true);
+			} else {
+				template.find('.btn-buy').attr('disabled', false);
+			}
+
+		} else {
+			template.find('.buy-token').hide();
+		}
+
+		tokens.append(template.html());
+	},
+
+	renderSearchTokens: function (tokenId, ytt, metadata, price, owner, address) {
+		var tokens = $('#allTokens2');
+		var template = $('#AllTokensTemplate');
+
+		this.getBasicTemplate(template, tokenId, ytt, metadata);
+		
+		var owner_up = owner.toUpperCase()
+		template.find('.token-owner').html("<div id='token-owner-sub' value='"+ owner_up + "'>" + owner_up +"</div>");
+
+
+		// 토큰 구매 보이기
+		if (parseInt(price) > 0) {
+			template.find('.buy-token').show();
+			template.find('.token-price').text(cav.utils.fromPeb(price, 'KLAY') + "KLAY에 판매중");
+
+			// 로그인한 회원이 판매중인 토큰 주인이라면
+			if (owner.toUpperCase() === address) {
 				template.find('.btn-buy').attr('disabled', true);
 			} else {
 				template.find('.btn-buy').attr('disabled', false);
@@ -866,6 +895,7 @@ $(document).ready(function () {
 
 	App.displayTrendTokens();
 
+
 	$("#notebox").click(function () {
 		// 쪽지 불러오기
 		$('.modal-wrapper-receive').toggleClass('open');
@@ -1005,8 +1035,73 @@ $(document).ready(function () {
 	$('#portfolio-flters li').on( 'click', function() {
 		$("#portfolio-flters li").removeClass('filter-active');
 		$(this).addClass('filter-active');
-		console.log(this.textContent);
+		var category = this.textContent
+		var tokenIdList = [];
+
+		$.ajax({
+			url: '/search_category_token',
+			dataType: 'json',
+			async: true,
+			type: 'POST',
+			contentType: 'application/json; charset=UTF-8',
+			data: JSON.stringify({
+				"category": category
+			}),
+			success: function (data) {
+				for(var i = 0; i < data.length; i++){
+					tokenIdList.push(data[i].token_id);
+				}
+				console.log(tokenIdList);
+				App.displayFindTokens(localStorage.getItem("my_address"), tokenIdList);
+			},
+			error: function (err) {
+
+			}
+		}); 
 	});
+	
+
+	if($("#select_search_type option:selected").val() == "등록날짜"){
+		alert( $("#select_search_type option:selected").val() )
+		$("#search_text").datepicker({
+			dateFormat:"yy-mm-dd"
+		});
+	}
+
+	// 검색창 검색 버튼 클릭
+	$(document).on('click','.btn-search',function(){
+		var keyword = $('#search_text').val();
+		var search_type = $("#select_search_type option:selected").val()
+		var tokenIdList = [];
+
+		if(search_type == "Category"){
+			alert("검색타입을 선택해주세요");
+		}
+		else{
+			$.ajax({
+				url: '/search_input_token',
+				dataType: 'json',
+				async: true,
+				type: 'POST',
+				contentType: 'application/json; charset=UTF-8',
+				data: JSON.stringify({
+					"keyword": keyword,
+					"search_type" : search_type
+				}),
+				success: function (data) {
+					for(var i = 0; i < data.length; i++){
+						tokenIdList.push(data[i].token_id);
+					}
+					console.log(tokenIdList);
+					App.displayFindTokens(localStorage.getItem("my_address"), tokenIdList);
+				},
+				error: function (err) {
+	
+				}
+			}); 
+		}
+	});
+	
 
 });
 
