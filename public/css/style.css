@@ -212,7 +212,8 @@ a.btn {
   
   .modal-wrapper,
   .modal-wrapper-receive,
-  .modal-wrapper-content {
+  .modal-wrapper-content,
+  .modal-wrapper-addWorker {
 	width: 100%;
 	height: 100%;
 	position: fixed;
@@ -225,14 +226,16 @@ a.btn {
   
   .modal-wrapper.open,
   .modal-wrapper-receive.open,
-  .modal-wrapper-content.open {
+  .modal-wrapper-content.open,
+  .modal-wrapper-addWorker.open {
 	opacity: 1;
 	visibility: visible;
   }
   
   .modal-wrapper .modal ,
   .modal-wrapper-receive .modal,
-  .modal-wrapper-content .modal{
+  .modal-wrapper-content .modal,
+  .modal-wrapper-addWorker .modal{
 	width: 600px;
 	height: 400px;
 	display: block;
@@ -247,7 +250,8 @@ a.btn {
   
   .modal-wrapper.open .modal,
   .modal-wrapper-receive.open .modal,
-  .modal-wrapper-content.open .modal {
+  .modal-wrapper-content.open .modal,
+  .modal-wrapper-addWorker.open .modal {
 	margin-top: -200px;
 	opacity: 1;
   }
@@ -265,7 +269,8 @@ a.btn {
   .btn-close-receive,
   .btn-close-show,
   .btn-send-note,
-  .btn-send-delete{
+  .btn-send-delete,
+  .btn-close-addWorker{
 	font-size: 28px;
 	display: block;
 	float: right;
@@ -279,7 +284,8 @@ a.btn {
   
   .content,
   .content-show,
-  .content_list {
+  .content_list,
+  .content-addWorker {
 	padding-top : 10px;
 	text-align: center;
   }
@@ -306,10 +312,36 @@ a.btn {
 	color: #e2525c;
   }
 
+  .modal-wrapper-addWorker .fab{
+	font-size: 50px;
+	color: #e2525c;
+  }
+
 
   /* 쪽지함 */
 
   .table_address{
 	font-size: 10px;
 	width: 30%;
+  }
+
+
+  /* 신고버튼 */
+  .btn-report-token{
+	font-size: 20px;
+	display: block;
+	float: right;
+	color: #fff;
+  }
+
+  .fa-satellite{
+	color: #fff;
+  }
+
+
+  /* 관심작가 */
+  #myfvworker {
+	text-align: center;
+	padding-top : 10px;
+	font-family: "Nanum Gothic", sans-serif;
   }

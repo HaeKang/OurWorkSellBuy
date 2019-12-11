@@ -20,11 +20,11 @@ var ipfs = ipfsCilent({
 
 var base64_src;
 var tokenOwner_address = "";
+var fvWorker_address = ""
 var note_sender = "";
 var note_id;
 var img_input;
-
-
+var myfavworker = [];
 
 
 const App = {
@@ -106,9 +106,10 @@ const App = {
 	integrateWallet: function (privateKey) {
 		const walletInstance = cav.klay.accounts.privateKeyToAccount(privateKey);
 		cav.klay.accounts.wallet.add(walletInstance)
-		sessionStorage.setItem('walletInstance', JSON.stringify(walletInstance));
-		this.changeUI(walletInstance);
+		sessionStorage.setItem('walletInstance', JSON.stringify(walletInstance));	
 		localStorage.setItem("my_address",walletInstance.address.toUpperCase())
+		this.changeUI(walletInstance);
+		location.reload();
 	},
 
 	reset: function () {
@@ -157,9 +158,9 @@ const App = {
 		var result = await this.isTokenAlreadyCreated(tokenId);
 
 		if (result) {
-			$('#t-message').text('이미 토큰화된 썸네일 입니다.');
+			$('#t-message').text('이미 토큰화된 작품 아이디 입니다.');
 		} else {
-			$('#t-message').text('토큰화 가능한 썸네일 입니다.');
+			$('#t-message').text('토큰화 가능한 작품 아이디 입니다.');
 			$('.btn-create').prop("disabled", false);
 		}
 	},
@@ -174,7 +175,21 @@ const App = {
 		var des = $('#description').val(); // 한줄설명 -> DB
 
 		var author = this.getWallet().address; // 작성자(올리는사람 지갑 주소) -> 블록체인, DB
-		var dateCreated = $('#date').val(); // 게시일 -> 블록체인, DB
+
+		var date = new Date(); 
+		var year = date.getFullYear(); 
+		var month = new String(date.getMonth()+1); 
+		var day = new String(date.getDate()); 
+
+		// 한자리수일 경우 0을 채워준다. 
+		if(month.length == 1){ 
+			month = "0" + month; 
+		} 
+		if(day.length == 1){ 
+			day = "0" + day; 
+		} 
+
+		var dateCreated = year + "-" + month + "-" + day;
 		var category = $('#category').val();	// 카테고리 -> 블록체인, DB
 		var eng_category;
 		
@@ -302,6 +317,7 @@ const App = {
 		if (totalSupply === 0) {
 			$('#allTokens2').text("현재 발행된 토큰이 없습니다.");
 		} else {
+			$('#allTokens2').empty();
 			for (var i = 0; i < totalSupply; i++) {
 				(async () => {
 					// tokenId 받아옴
@@ -361,6 +377,85 @@ const App = {
 		}
 	},
 
+	
+	displaySaleToken: async function (address) {
+		var totalSupply = parseInt(await this.getTotalSupply());
+		$('#allTokens2').empty();
+		
+		for (var i = 0; i < totalSupply; i++) {
+			(async () => {
+				// tokenId 받아옴
+				var tokenId = await this.getTokenByIndex(i);
+				var tokenUri = await this.getTokenUri(tokenId); // token uri(infa였나 그거 주소 meta데이터 갖고있는 주소)
+				var ytt = await this.getYTT(tokenId); // ytt 클래스
+				var metadata = await this.getMetadata(tokenUri); // meta데이터
+				var price = await this.getTokenPrice(tokenId); // 판매 가격
+				var owner = await this.getOwnerOf(tokenId); // 토큰 소유자
+				if(price > 0){
+					this.renderSaleToken(tokenId, ytt, metadata, price, owner, address);
+				}
+										
+			})();
+		}
+		
+	},
+
+	displayFvWorkerToken: async function (address) {
+		var totalSupply = parseInt(await this.getTotalSupply());
+		$('#workerTokens').empty();
+
+		for (var i = 0; i < totalSupply; i++) {
+			(async () => {
+				// tokenId 받아옴
+				var tokenId = await this.getTokenByIndex(i);
+				var tokenUri = await this.getTokenUri(tokenId); // token uri(infa였나 그거 주소 meta데이터 갖고있는 주소)
+				var ytt = await this.getYTT(tokenId); // ytt 클래스
+				var metadata = await this.getMetadata(tokenUri); // meta데이터
+				var price = await this.getTokenPrice(tokenId); // 판매 가격
+				var owner = await this.getOwnerOf(tokenId); // 토큰 소유자
+				if($.inArray(ytt[0].toUpperCase(),myfavworker) > -1){
+					this.renderFvWorkerTokens(tokenId, ytt, metadata, price, owner, address);
+				}
+										
+			})();
+		}
+		
+	},
+
+	// 모든 토큰 렌더링
+	renderFvWorkerTokens: function (tokenId, ytt, metadata, price, owner, address) {
+		var tokens = $('#workerTokens');
+		var template = $('#AllTokensTemplate');
+
+		this.getBasicTemplate(template, tokenId, ytt, metadata);
+
+		var author = ytt[0].toUpperCase()
+		var owner_up = owner.toUpperCase()
+		template.find('.token-owner').html("<div id='token-owner-sub' value='"+ owner_up + "'>" + owner_up +"</div>");	// 토큰소유자
+		template.find('.token-maker').html("<div id='token-maker-sub' value='"+ author + "'>" + author +"</div>");	// 작가
+
+		template.find('.panel-heading').html(tokenId + '<a class="btn-report-token trigger" id="report_' + tokenId + '"><i class="fas fa-satellite"></i></a>');
+
+		// 토큰 구매 보이기
+		if (parseInt(price) > 0) {
+			template.find('.buy-token').show();
+
+			// 로그인한 회원이 판매중인 토큰 주인이라면
+			if (owner.toUpperCase() === address) {
+				template.find('.btn-buy').attr('disabled', true);
+				template.find('.token-price').html("보유 중인 토큰<br>"+cav.utils.fromPeb(price, 'KLAY') + "KLAY에 판매중");
+			} else {
+				template.find('.btn-buy').attr('disabled', false);
+				template.find('.token-price').text(cav.utils.fromPeb(price, 'KLAY') + "KLAY에 판매중");
+			}
+
+		} else {
+			template.find('.buy-token').hide();
+		}
+
+		tokens.append(template.html());
+	},
+
 
 	renderMyTokens: function (tokenId, ytt, metadata, isApproved, price) {
 		var tokens = $('#myTokens');
@@ -381,6 +476,7 @@ const App = {
 		tokens.append(template.html());
 	},
 
+
 	renderMyTokensSale: function (tokenId, ytt, metadata, price) {
 		var tokens = $('#myTokensSale');
 		var template = $('#MyTokensSaleTemplate');
@@ -392,26 +488,61 @@ const App = {
 		tokens.append(template.html());
 	},
 
+	// 모든 토큰 렌더링
 	renderAllTokens: function (tokenId, ytt, metadata, price, owner, walletInstance) {
 		var tokens = $('#allTokens2');
 		var template = $('#AllTokensTemplate');
 
 		this.getBasicTemplate(template, tokenId, ytt, metadata);
-		
-		var owner_up = owner.toUpperCase()
-		template.find('.token-owner').html("<div id='token-owner-sub' value='"+ owner_up + "'>" + owner_up +"</div>");
 
+		var author = ytt[0].toUpperCase()
+		var owner_up = owner.toUpperCase()
+		template.find('.token-owner').html("<div id='token-owner-sub' value='"+ owner_up + "'>" + owner_up +"</div>");	// 토큰소유자
+		template.find('.token-maker').html("<div id='token-maker-sub' value='"+ author + "'>" + author +"</div>");	// 작가
+
+		template.find('.panel-heading').html(tokenId + '<a class="btn-report-token trigger" id="report_' + tokenId + '"><i class="fas fa-satellite"></i></a>');
 
 		// 토큰 구매 보이기
 		if (parseInt(price) > 0) {
 			template.find('.buy-token').show();
-			template.find('.token-price').text(cav.utils.fromPeb(price, 'KLAY') + "KLAY에 판매중");
 
 			// 로그인한 회원이 판매중인 토큰 주인이라면
 			if (owner.toUpperCase() === walletInstance.address.toUpperCase()) {
 				template.find('.btn-buy').attr('disabled', true);
+				template.find('.token-price').html("보유 중인 토큰<br>"+cav.utils.fromPeb(price, 'KLAY') + "KLAY에 판매중");
 			} else {
 				template.find('.btn-buy').attr('disabled', false);
+				template.find('.token-price').text(cav.utils.fromPeb(price, 'KLAY') + "KLAY에 판매중");
+			}
+
+		} else {
+			template.find('.buy-token').hide();
+		}
+
+		tokens.append(template.html());
+	},
+
+	renderSaleToken: function (tokenId, ytt, metadata, price, owner, address) {
+		var tokens = $('#allTokens2');
+		var template = $('#AllTokensTemplate');
+
+		this.getBasicTemplate(template, tokenId, ytt, metadata);		
+		
+		var owner_up = owner.toUpperCase()
+		template.find('.token-owner').html("<div id='token-owner-sub' value='"+ owner_up + "'>" + owner_up +"</div>");
+		template.find('.token-maker').html("<div id='token-maker-sub' value='"+ ytt[0] + "'>" + ytt[0] +"</div>");
+
+		// 토큰 구매 보이기
+		if (parseInt(price) > 0) {
+			template.find('.buy-token').show();
+
+			// 로그인한 회원이 판매중인 토큰 주인이라면
+			if (owner.toUpperCase() === address) {
+				template.find('.btn-buy').attr('disabled', true);
+				template.find('.token-price').html("보유 중인 토큰<br>"+cav.utils.fromPeb(price, 'KLAY') + "KLAY에 판매중");
+			} else {
+				template.find('.btn-buy').attr('disabled', false);
+				template.find('.token-price').text(cav.utils.fromPeb(price, 'KLAY') + "KLAY에 판매중");
 			}
 
 		} else {
@@ -429,18 +560,19 @@ const App = {
 		
 		var owner_up = owner.toUpperCase()
 		template.find('.token-owner').html("<div id='token-owner-sub' value='"+ owner_up + "'>" + owner_up +"</div>");
-
+		template.find('.token-maker').html("<div id='token-maker-sub' value='"+ ytt[0] + "'>" + ytt[0] +"</div>");
 
 		// 토큰 구매 보이기
 		if (parseInt(price) > 0) {
 			template.find('.buy-token').show();
-			template.find('.token-price').text(cav.utils.fromPeb(price, 'KLAY') + "KLAY에 판매중");
 
 			// 로그인한 회원이 판매중인 토큰 주인이라면
 			if (owner.toUpperCase() === address) {
 				template.find('.btn-buy').attr('disabled', true);
+				template.find('.token-price').html("보유 중인 토큰<br>"+cav.utils.fromPeb(price, 'KLAY') + "KLAY에 판매중");
 			} else {
 				template.find('.btn-buy').attr('disabled', false);
+				template.find('.token-price').text(cav.utils.fromPeb(price, 'KLAY') + "KLAY에 판매중");
 			}
 
 		} else {
@@ -878,6 +1010,37 @@ const App = {
 			console.error(err);
 			spinner.stop();
 		}
+	},
+
+	checkImgSim : function(){
+
+		var spinner = this.showSpinner();
+
+		if(base64_src){
+
+			$.ajax({
+				url: '/imageinsert',
+				dataType: 'json',
+				async: true,
+				type: 'POST',
+				contentType: 'application/json; charset=UTF-8',
+				data: JSON.stringify({
+					"image": base64_src
+				}),
+				success: function () {
+					
+				},
+				error: function (err) {
+					console.log("에러발생");
+				}
+			});
+
+
+
+		} else{
+			alert("이미지를 업로드해주세요!");
+			spinner.stop();
+		}
 	}
 
 };
@@ -894,6 +1057,32 @@ window.addEventListener("load", function () {
 $(document).ready(function () {
 
 	App.displayTrendTokens();
+
+	// 관심 작가 불러옴
+	$.ajax({
+		url: '/find_myfvworker',
+		dataType: 'json',
+		async: true,
+		type: 'POST',
+		contentType: 'application/json; charset=UTF-8',
+		data: JSON.stringify({
+			"myaddress" : localStorage.getItem("my_address")
+		}),
+		success: function (data) {
+			console.log(data);
+			myfavworker = [];
+			$('#myfvworker').empty();
+			$('#myfvworker').append("<strong> 내 관심작가 목록 </strong><br>")
+			for(var i = 0; i < data.length; i++){
+				myfavworker.push(data[i].worker);
+				$('#myfvworker').append("<p class='my_fv_list' id='" + data[i].fav_id + "'>" + data[i].worker + "</p>");
+			}
+			App.displayFvWorkerToken(localStorage.getItem("my_address"));
+		},
+		error: function (err) {
+			console.log(err);
+		}
+	}); 
 
 
 	$("#notebox").click(function () {
@@ -1031,33 +1220,148 @@ $(document).ready(function () {
 		$("#note_content").val("");
 	});
 
+
+	// 토큰 신고 버튼 클릭
+	$(document).on('click','.btn-report-token',function(e){
+		var token_id = e.currentTarget.id;
+		token_id = token_id.substring(7);
+	});
+
+	// 토큰 작가 클릭
+	$(document).on('click','#token-maker-sub',function(e){
+		var address = e.currentTarget.textContent;	// 작가 주소
+		fvWorker_address = address;
+
+		// 내 계정이면
+		if(localStorage.getItem("my_address") === address){
+			
+		} else{
+			// 다른 계정이면
+			$('.modal-wrapper-addWorker').toggleClass('open');
+			$('#service').toggleClass('blur-it');
+			$('.content-worker').empty();
+			$('.content-worker').html("<strong>" +address + "</strong><br>작가님을 관심작가로 등록할까요?");
+
+		}
+
+	});
+
+	// 토큰 작가 관심작가 추가
+	$(document).on('click','#addWorker',function(e){
+
+		// 이미 있으면
+		if($.inArray(fvWorker_address,myfavworker) > -1){
+			alert("이미 추가한 작가입니다!");
+
+		} else{
+			$.ajax({
+				url: '/add_myfavWorker',
+				dataType: 'json',
+				async: true,
+				type: 'POST',
+				contentType: 'application/json; charset=UTF-8',
+				data: JSON.stringify({
+					"myaddress" : localStorage.getItem("my_address"),
+					"worker": fvWorker_address
+				}),
+				success: function (data) {
+		
+				},
+				error: function (err) {
+					alert(err);
+				}
+			}); 
+			alert("추가하였습니다!")
+		}
+
+		$('.modal-wrapper-addWorker').toggleClass('open');
+		$('#service').toggleClass('blur-it');
+		fvWorker_address = "";
+		location.reload();
+	});
+
+	// 토큰 작가 클릭 창 닫기 2개
+	$(document).on('click','.btn-close-addWorker',function(e){
+		$('.modal-wrapper-addWorker').toggleClass('open');
+		$('#service').toggleClass('blur-it');
+
+		fvWorker_address = "";
+
+	});
+
+	$(document).on('click','#noWorker',function(e){
+		$('.modal-wrapper-addWorker').toggleClass('open');
+		$('#service').toggleClass('blur-it');
+
+		fvWorker_address = "";
+
+	});
+
+
+	// 내 관심 작가 목록에서 삭제하기
+	$(document).on('click','.my_fv_list',function(e){
+		var fav_id = e.currentTarget.id;
+
+		if(confirm("클릭한 작가님을 관심작가에서 제거하시겠습니까?")){
+
+			$.ajax({
+				url: '/delete_myfvworker',
+				dataType: 'json',
+				async: true,
+				type: 'POST',
+				contentType: 'application/json; charset=UTF-8',
+				data: JSON.stringify({
+					"fav_id": fav_id
+				}),
+				success: function (data) {
+					alert("삭제하였습니다!")
+				},
+				error: function (err) {
 	
+				}
+			}); 
+			location.reload();
+		}else{
+			return;
+		}
+	});
+
+
+	// 카테고리 클릭
 	$('#portfolio-flters li').on( 'click', function() {
 		$("#portfolio-flters li").removeClass('filter-active');
 		$(this).addClass('filter-active');
 		var category = this.textContent
 		var tokenIdList = [];
+		
+		if(category != "for sale"){
 
-		$.ajax({
-			url: '/search_category_token',
-			dataType: 'json',
-			async: true,
-			type: 'POST',
-			contentType: 'application/json; charset=UTF-8',
-			data: JSON.stringify({
-				"category": category
-			}),
-			success: function (data) {
-				for(var i = 0; i < data.length; i++){
-					tokenIdList.push(data[i].token_id);
+			$.ajax({
+				url: '/search_category_token',
+				dataType: 'json',
+				async: true,
+				type: 'POST',
+				contentType: 'application/json; charset=UTF-8',
+				data: JSON.stringify({
+					"category": category
+				}),
+				success: function (data) {
+					for(var i = 0; i < data.length; i++){
+						tokenIdList.push(data[i].token_id);
+					}
+					console.log(tokenIdList);
+					App.displayFindTokens(localStorage.getItem("my_address"), tokenIdList);
+				},
+				error: function (err) {
+	
 				}
-				console.log(tokenIdList);
-				App.displayFindTokens(localStorage.getItem("my_address"), tokenIdList);
-			},
-			error: function (err) {
+			}); 
 
-			}
-		}); 
+
+		} else{
+			App.displaySaleToken(localStorage.getItem("my_address"));
+		}
+		
 	});
 	
 

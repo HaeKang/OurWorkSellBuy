@@ -52,10 +52,10 @@ module.exports = {
           var mysql = require('mysql');
           var connection = mysql.createConnection({
                                 host: '127.0.0.1',
-                                user: 'root',
+                                user: 'hk',
                                 password: '1234',
                                 port: 3306,
-                                database: 'test'
+                                database: 'BlockChain'
                             });
 
           connection.connect();
@@ -72,7 +72,7 @@ module.exports = {
             var address = req.body.address;
             var post = req.body.page;
 
-            var sql = 'select sender, contents, note_id from note where receiver = ? order by note_id desc';
+            var sql = 'select sender, contents, note_id from message where receiver = ? order by note_id desc';
             
             connection.query(sql, [address] , function (error, result) {
               if(error){ console.log(error); }  
@@ -85,7 +85,7 @@ module.exports = {
           app.post("/note_read", bodyParser.json(), function(req, res){           
             var note_id = req.body.note_id;
 
-            var sql = 'select sender, contents from note where note_id = ?';
+            var sql = 'select sender, contents from message where note_id = ?';
 
             connection.query(sql, [note_id] , function (error, result) {
               if(error){ console.log(error); }
@@ -101,7 +101,7 @@ module.exports = {
               var receiver = req.body.receiver;
               var contents = req.body.contents;
 
-              var sql = 'insert into note(sender,receiver,contents) values(?,?,?)';
+              var sql = 'insert into message(sender,receiver,contents) values(?,?,?)';
               connection.query(sql, [sender,receiver,contents] , function (error, result) {
                 if(error){ console.log(error); }
                 console.log("result : " + result);
@@ -113,7 +113,7 @@ module.exports = {
           app.post("/note_delete", bodyParser.json(), function(req, res){           
             var note_id = req.body.note_id;
 
-            var sql = 'delete from note where note_id = ?';
+            var sql = 'delete from message where note_id = ?';
             connection.query(sql, [note_id] , function (error, result) {
               if(error){ console.log(error); }
               console.log("note_id 삭제 : " + note_id);
@@ -129,20 +129,96 @@ module.exports = {
             var category = req.body.category;
             var work_id = req.body.work_id;
             var description = req.body.description;
-            var image = req.body.image;
 
-            var sql = 'insert into category(author, regi_date, category, work_id, description) values(?,?,?,?,?)';
-            var sql2 = 'insert into image(image) values(?)'
+            var sql = 'insert into kategorie(author, regi_date, category, work_id, description) values(?,?,?,?,?)';
 
             connection.query(sql, [author, regi_date, category, work_id, description] , function (error, result) {
-                
+              if(error){ console.log(error); }
             });
 
-            connection.query(sql2, [image] , function (error, result) {
-            
-          });
+        });
+
+          // 관심 작가 추가
+          app.post("/add_myfavWorker", function(req, res){           
+            var myaddress = req.body.myaddress;
+            var worker = req.body.worker;
+
+            var sql = 'insert into fvWorker(myaddress, worker) values(?,?)';
+
+            connection.query(sql, [myaddress, worker] , function (error, result) {
+              if(error){ 
+                console.log(error); 
+                res.send(error);
+              } else{
+                res.send(result);
+              }
+
+              
+            });
 
         });
+
+          // 관심 작가 찾기
+          app.post("/find_myfvworker", function(req, res){           
+            var myaddress = req.body.myaddress;
+
+            var sql = 'select worker,fav_id from fvWorker where myaddress = ?';
+
+            connection.query(sql, [myaddress] , function (error, result) {
+              if(error){ 
+                console.log(error); 
+                res.send(error);
+              } else{
+                res.send(result);
+                console.log(result);
+              }
+
+              
+            });
+
+        });
+
+          // 관심 작가 삭제
+          app.post("/delete_myfvworker", function(req, res){           
+            var fav_id = req.body.fav_id;
+
+            var sql = 'delete from fvWorker where fav_id = ?';
+
+            connection.query(sql, [fav_id] , function (error, result) {
+              if(error){ 
+                console.log(error); 
+                res.send(error);
+              } else{
+                res.send(result);
+                console.log(result);
+              }
+
+              
+            });
+
+        });
+
+          // 이미지 중복확인 클릭 시 image 테이블에 넣음
+        app.post("/imageinsert", function(req, res){           
+            var image = req.body.image;
+
+            var sql = 'insert into image(image, dupli) values(?,?)'
+
+            connection.query(sql, [image,"0"] , function (error, result) {
+                
+            });
+        });
+
+
+        app.post("/imageresult", function(req, res){           
+          var image = req.body.image;
+
+          var sql = 'insert into image(image, dupli) values(?,?)'
+
+          connection.query(sql, [image] , function (error, result) {
+              
+          });
+      });
 
         
         // 카테고리 검색
@@ -150,9 +226,9 @@ module.exports = {
           var category = req.body.category;
           var sql = ""
           if(category == "all"){
-            sql = 'select token_id from category';
+            sql = 'select token_id from kategorie';
           } else{
-            sql = 'select token_id from category where category = ?';
+            sql = 'select token_id from kategorie where category = ?';
           }
 
           connection.query(sql, [category] , function (error, result) {
@@ -172,7 +248,7 @@ module.exports = {
         if(search_type == "키워드"){
 
           keyword = "%" + keyword + "%";
-          sql = 'select token_id from category where description LIKE ? OR work_id LIKE ?';
+          sql = 'select token_id from kategorie where description LIKE ? OR work_id LIKE ?';
 
           connection.query(sql, [keyword,keyword] , function (error, result) {
             if(error){ console.log(error); }
@@ -182,7 +258,7 @@ module.exports = {
 
         } else if (search_type == "작품아이디"){
 
-          sql = 'select token_id from category where work_id = ?';
+          sql = 'select token_id from kategorie where work_id = ?';
 
           connection.query(sql, [keyword] , function (error, result) {
             if(error){ console.log(error); }
@@ -192,7 +268,7 @@ module.exports = {
 
         } else if (search_type == "토큰아이디"){
 
-          sql = 'select token_id from category where token_id = ?';
+          sql = 'select token_id from kategorie where token_id = ?';
 
           connection.query(sql, [keyword] , function (error, result) {
             if(error){ console.log(error); }
@@ -202,7 +278,7 @@ module.exports = {
 
         } else if (search_type == "등록날짜"){
 
-          sql = 'select token_id from category where regi_date = ?';
+          sql = 'select token_id from kategorie where regi_date = ?';
           
           connection.query(sql, [keyword] , function (error, result) {
             if(error){ console.log(error); }
