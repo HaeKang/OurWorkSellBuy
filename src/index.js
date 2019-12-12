@@ -498,7 +498,7 @@ const App = {
 							}
 						}
 					}
-					
+
 				} else{
 
 					if($.inArray(ytt[0].toUpperCase(),myfavworker) > -1){
@@ -625,7 +625,7 @@ const App = {
 		
 		var owner_up = owner.toUpperCase()
 		template.find('.token-owner').html("<div id='token-owner-sub' value='"+ owner_up + "'>" + owner_up +"</div>");
-		template.find('.token-maker').html("<div id='token-maker-sub' value='"+ ytt[0] + "'>" + ytt[0] +"</div>");
+		template.find('.token-maker').html("<div id='token-maker-sub' value='"+ ytt[0].toUpperCase() + "'>" + ytt[0].toUpperCase() +"</div>");
 
 		template.find('.panel-heading').html(tokenId + '<a class="btn-report-token trigger" id="report_' + tokenId + '"><i class="fas fa-satellite"></i></a>');
 
@@ -657,7 +657,7 @@ const App = {
 		
 		var owner_up = owner.toUpperCase()
 		template.find('.token-owner').html("<div id='token-owner-sub' value='"+ owner_up + "'>" + owner_up +"</div>");
-		template.find('.token-maker').html("<div id='token-maker-sub' value='"+ ytt[0] + "'>" + ytt[0] +"</div>");
+		template.find('.token-maker').html("<div id='token-maker-sub' value='"+ ytt[0].toUpperCase() + "'>" + ytt[0].toUpperCase() +"</div>");
 
 		template.find('.panel-heading').html(tokenId + '<a class="btn-report-token trigger" id="report_' + tokenId + '"><i class="fas fa-satellite"></i></a>');
 
@@ -1058,8 +1058,16 @@ const App = {
 	sendNote: function () {
 
 		var contents = $('#note_content').val(); 
+		if(!contents){
+			contents = $('#note_content2').val();
+			alert(contents);
+		}
+
 		var sender = localStorage.getItem("my_address");
+
 		var receiver = "";
+
+		var spinner = this.showSpinner();
 
 		if(tokenOwner_address != ""){
 			receiver = tokenOwner_address;
@@ -1067,6 +1075,9 @@ const App = {
 		} else if (note_sender != ""){
 			receiver = note_sender
 			console.log("쪽지답장 : " + receiver);
+		} else if($("#note_receiver").val()){
+			receiver = $("#note_receiver").val();
+			console.log("쪽지보내기 : " + receiver);
 		}
 
 		console.log(receiver);
@@ -1104,6 +1115,63 @@ const App = {
 				note_sender = "";
 				$("#note_content").replaceWith( $("#note_content").clone(true) );
 				$("#note_content").val("");
+				spinner.stop();
+
+		} catch (err) {
+			console.error(err);
+			spinner.stop();
+		}
+	},
+
+	sendNote2: function () {
+
+		var contents = $('#note_content2').val();
+
+		var sender = localStorage.getItem("my_address");
+
+		var receiver = $("#note_receiver").val();
+
+		var spinner = this.showSpinner();
+
+
+		console.log(receiver);
+
+		if (!contents || !receiver) {
+			spinner.stop();
+			alert("빠짐없이 모두 입력해주세요!");
+			return;
+		}
+
+		try {
+				$.ajax({
+					url: '/send',
+					dataType: 'json',
+					async: true,
+					type: 'POST',
+					contentType: 'application/json; charset=UTF-8',
+					data: JSON.stringify({
+						"sender": sender,
+						"receiver":receiver,
+						"contents":contents 
+					}),
+					success: function () {
+						
+					},
+					error: function (err) {
+						console.log("에러발생");
+					}
+				});
+
+				alert("쪽지를 성공적으로 보냈습니다!");
+				$('.modal-wrapper-send-inbox').toggleClass('open');
+
+				$("#note_content2").replaceWith( $("#note_content2").clone(true) );
+				$("#note_content2").val("");
+
+				$("#note_receiver").replaceWith( $("#note_content2").clone(true) );
+				$("#note_receiver").val("");
+				
+				spinner.stop();
 
 		} catch (err) {
 			console.error(err);
@@ -1202,7 +1270,6 @@ $(document).ready(function () {
 		$('.modal-wrapper-receive').toggleClass('open');
 		$('#service').toggleClass('blur-it');
 		$('#note_list_page').removeClass("listClick");
-		var my_address = 
 
 		$.ajax({
 			url: '/notebox/1',
@@ -1228,6 +1295,20 @@ $(document).ready(function () {
 		$('.modal-wrapper-receive').toggleClass('open');
 		$('#service').toggleClass('blur-it');
 	});
+
+	// 쪽지 쓰기 클릭
+	$(document).on('click','.btn-send-note-inbox',function(e){
+		$('.modal-wrapper-send-inbox').toggleClass('open');
+		
+	});
+
+
+	// 쪽지 쓰기 닫기
+	$(document).on('click','.btn-close-send-cancel',function(e){
+		$('.modal-wrapper-send-inbox').toggleClass('open');
+		
+	});
+
 
 	// 쪽지 클릭
 	$(document).on('click', '.note_select', function(){

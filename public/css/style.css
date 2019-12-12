@@ -213,7 +213,8 @@ a.btn {
   .modal-wrapper,
   .modal-wrapper-receive,
   .modal-wrapper-content,
-  .modal-wrapper-addWorker {
+  .modal-wrapper-addWorker,
+  .modal-wrapper-send-inbox {
 	width: 100%;
 	height: 100%;
 	position: fixed;
@@ -227,7 +228,8 @@ a.btn {
   .modal-wrapper.open,
   .modal-wrapper-receive.open,
   .modal-wrapper-content.open,
-  .modal-wrapper-addWorker.open {
+  .modal-wrapper-addWorker.open,
+  .modal-wrapper-send-inbox.open {
 	opacity: 1;
 	visibility: visible;
   }
@@ -235,7 +237,8 @@ a.btn {
   .modal-wrapper .modal ,
   .modal-wrapper-receive .modal,
   .modal-wrapper-content .modal,
-  .modal-wrapper-addWorker .modal{
+  .modal-wrapper-addWorker .modal,
+  .modal-wrapper-send-inbox .modal{
 	width: 600px;
 	height: 400px;
 	display: block;
@@ -251,7 +254,8 @@ a.btn {
   .modal-wrapper.open .modal,
   .modal-wrapper-receive.open .modal,
   .modal-wrapper-content.open .modal,
-  .modal-wrapper-addWorker.open .modal {
+  .modal-wrapper-addWorker.open .modal,
+  .modal-wrapper-send-inbox.open .modal {
 	margin-top: -200px;
 	opacity: 1;
   }
@@ -270,7 +274,9 @@ a.btn {
   .btn-close-show,
   .btn-send-note,
   .btn-send-delete,
-  .btn-close-addWorker{
+  .btn-close-addWorker,
+  .btn-send-note-inbox,
+  .btn-close-send-cancel{
 	font-size: 28px;
 	display: block;
 	float: right;
@@ -278,7 +284,10 @@ a.btn {
   }
 
   .btn-send-note,
-  .btn-send-delete{
+  .btn-send-delete,
+  .btn-send-note,
+  .btn-send-note-inbox,
+  .btn-close-send-cancel{
 	padding-right: 10px;
 }
   

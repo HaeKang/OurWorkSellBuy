@@ -409,6 +409,9 @@
 		<a class="btn-close-receive trigger">
 		  <i class="fa fa-times" aria-hidden="true"></i>
 		</a>
+		<a class="btn-send-note-inbox trigger">
+			<i class="fas fa-pencil-alt"  aria-hidden="true"></i>
+		</a>
 	  </div>
 	  <div class="content-receive">
 			<div class="content-icon">
@@ -477,6 +480,29 @@
 		</div>
 	</div>
 
+	<!-- 쪽지보내기2 Modal -->
+	<div class="modal-wrapper-send-inbox">
+		<div class="modal">
+			<div class="head">
+				<a class="btn-close-send-cancel trigger">
+					<i class="fa fa-times" aria-hidden="true"></i>
+				</a>
+			</div>
+			<div class="content">
+				<div class="good-job">
+					<i class="fas fa-envelope-open-text" aria-hidden="true"></i>
+					<h1>쪽지를 보냅니다</h1>
+				</div>
+
+				<div>
+					받는이 : <input type="text" name="" id="note_receiver">
+					내용 : <input type="text" id="note_content2">
+					<button type="button" class="btn btn-primary btn-create" onclick="App.sendNote2()">제출</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
 
 	<!-- 관심작가 추가 Modal -->
 	<div class="modal-wrapper-addWorker">
