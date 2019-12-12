@@ -327,7 +327,8 @@ a.btn {
 
 
   /* 신고버튼 */
-  .btn-report-token{
+  .btn-report-token,
+  .btn-delete-token{
 	font-size: 20px;
 	display: block;
 	float: right;
@@ -344,4 +345,10 @@ a.btn {
 	text-align: center;
 	padding-top : 10px;
 	font-family: "Nanum Gothic", sans-serif;
+  }
+
+
+  /* 삭제버튼 */
+  .fa-trash-alt{
+	color: #fff;
   }

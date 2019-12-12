@@ -90,7 +90,6 @@ module.exports = {
             connection.query(sql, [note_id] , function (error, result) {
               if(error){ console.log(error); }
               res.send(result)
-              console.log(result)
             });
           });
 
@@ -104,7 +103,6 @@ module.exports = {
               var sql = 'insert into message(sender,receiver,contents) values(?,?,?)';
               connection.query(sql, [sender,receiver,contents] , function (error, result) {
                 if(error){ console.log(error); }
-                console.log("result : " + result);
               });
           });
 
@@ -170,7 +168,6 @@ module.exports = {
                 res.send(error);
               } else{
                 res.send(result);
-                console.log(result);
               }
 
               
@@ -190,10 +187,7 @@ module.exports = {
                 res.send(error);
               } else{
                 res.send(result);
-                console.log(result);
-              }
-
-              
+              }        
             });
 
         });
@@ -234,7 +228,6 @@ module.exports = {
           connection.query(sql, [category] , function (error, result) {
             if(error){ console.log(error); }
             res.send(result)
-            console.log(result)
           });
         });
         
@@ -253,7 +246,6 @@ module.exports = {
           connection.query(sql, [keyword,keyword] , function (error, result) {
             if(error){ console.log(error); }
             res.send(result)
-            console.log(result)
           });
 
         } else if (search_type == "작품아이디"){
@@ -263,7 +255,6 @@ module.exports = {
           connection.query(sql, [keyword] , function (error, result) {
             if(error){ console.log(error); }
             res.send(result)
-            console.log(result)
           });
 
         } else if (search_type == "토큰아이디"){
@@ -273,7 +264,6 @@ module.exports = {
           connection.query(sql, [keyword] , function (error, result) {
             if(error){ console.log(error); }
             res.send(result)
-            console.log(result)
           });
 
         } else if (search_type == "등록날짜"){
@@ -283,13 +273,76 @@ module.exports = {
           connection.query(sql, [keyword] , function (error, result) {
             if(error){ console.log(error); }
             res.send(result)
-            console.log(result)
           });
+
+        } else if (search_type == "작가"){
+
+          sql = 'select token_id from kategorie where author = ?';
+          
+          connection.query(sql, [keyword] , function (error, result) {
+            if(error){ console.log(error); }
+            res.send(result)
+          });
+          
         }
 
        
       });
 
+
+      // 신고
+       app.post("/report_work", function(req, res){           
+        var token_id = req.body.token_id;
+        var address = req.body.address;
+
+        var sql1 = 'select * from report where token_id = ? and address = ?'
+        var sql2 = 'insert into report(token_id, address, report_check) values(?,?,?)';
+
+        connection.query(sql1, [token_id, address] , function (error, result) {
+          if(error){ 
+            console.log(error); 
+          } else{
+            if(!result.length){
+              connection.query(sql2, [token_id, address, "1"] , function (error, result) {
+                if(error){ console.log(error); }
+                res.send(result)
+              });
+            } else{
+              res.send(result);
+            }
+          }    
+        });
+
+      });
+
+       // 삭제된 목록
+       app.post("/delete_worklist", function(req, res){           
+
+        var sql = 'select * from delete_work'
+
+        connection.query(sql, function (error, result) {
+          if(error){ 
+            console.log(error); 
+          } else{
+              res.send(result);
+          }    
+        });
+
+      });
+
+      // 삭제하기
+       app.post("/delete_work", function(req, res){     
+
+        var token_id = req.body.token_id;
+        var sql = 'insert into delete_work(token_id) values(?)'
+
+        connection.query(sql, [token_id] , function (error, result) {
+          if(error){ 
+            console.log(error); 
+          }   
+        });
+
+      });
 
 
     }    

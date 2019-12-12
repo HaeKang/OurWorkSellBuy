@@ -25,6 +25,7 @@ var note_sender = "";
 var note_id;
 var img_input;
 var myfavworker = [];
+var deletework = [];	// 삭제작품
 
 
 const App = {
@@ -301,12 +302,34 @@ const App = {
 					var ytt = await this.getYTT(tokenId);
 					var metadata = await this.getMetadata(tokenUri);
 					var price = await this.getTokenPrice(tokenId); // 소유자의 토큰 중 판매중인지 아닌지 price값을 통해 알아보자
-					this.renderMyTokens(tokenId, ytt, metadata, isApproved, price);
 
-					if (parseInt(price) > 0) {
-						// 0보다 크면 판매중인 토큰
-						this.renderMyTokensSale(tokenId, ytt, metadata, price);
+				
+					if(deletework.length){
+
+						for( var j = 0; j < deletework.length; j ++){
+							if(deletework[j] == tokenId){
+	
+							} else{
+								this.renderMyTokens(tokenId, ytt, metadata, isApproved, price);
+	
+								if (parseInt(price) > 0) {
+									// 0보다 크면 판매중인 토큰
+									this.renderMyTokensSale(tokenId, ytt, metadata, price);
+								}
+							}
+						}
+
+					} else{
+
+						this.renderMyTokens(tokenId, ytt, metadata, isApproved, price);
+	
+						if (parseInt(price) > 0) {
+							// 0보다 크면 판매중인 토큰
+							this.renderMyTokensSale(tokenId, ytt, metadata, price);
+						}
+
 					}
+
 				})();
 			}
 		}
@@ -327,7 +350,24 @@ const App = {
 					var metadata = await this.getMetadata(tokenUri); // meta데이터
 					var price = await this.getTokenPrice(tokenId); // 판매 가격
 					var owner = await this.getOwnerOf(tokenId); // 토큰 소유자
-					this.renderAllTokens(tokenId, ytt, metadata, price, owner, walletInstance);
+					
+
+					if(deletework.length){
+
+						for( var j = 0; j < deletework.length; j ++){
+							if(deletework[j] == tokenId){
+	
+							} else{
+								this.renderAllTokens(tokenId, ytt, metadata, price, owner, walletInstance);
+							}
+						}
+
+					} else{
+
+						this.renderAllTokens(tokenId, ytt, metadata, price, owner, walletInstance);
+
+					}
+
 				})();
 			}
 		}
@@ -371,7 +411,21 @@ const App = {
 					var metadata = await this.getMetadata(tokenUri); // meta데이터
 					var price = await this.getTokenPrice(tokenId); // 판매 가격
 					var owner = await this.getOwnerOf(tokenId); // 토큰 소유자
-					this.renderSearchTokens(tokenId, ytt, metadata, price, owner, address);
+
+					if(deletework.length){
+
+						for( var j = 0; j < deletework.length; j ++){
+							if(deletework[j] == tokenId){
+	
+							} else{
+								this.renderSearchTokens(tokenId, ytt, metadata, price, owner, address);
+							}
+						}
+
+					} else{
+						this.renderSearchTokens(tokenId, ytt, metadata, price, owner, address);
+					}
+
 				})();
 			}
 		}
@@ -391,9 +445,27 @@ const App = {
 				var metadata = await this.getMetadata(tokenUri); // meta데이터
 				var price = await this.getTokenPrice(tokenId); // 판매 가격
 				var owner = await this.getOwnerOf(tokenId); // 토큰 소유자
-				if(price > 0){
-					this.renderSaleToken(tokenId, ytt, metadata, price, owner, address);
+
+				if(deletework.length){
+
+					for( var j = 0; j < deletework.length; j ++){
+						if(deletework[j] == tokenId){
+	
+						} else{
+							if(price > 0){
+								this.renderSaleToken(tokenId, ytt, metadata, price, owner, address);
+							}
+						}
+					}
+
+				} else{
+
+					if(price > 0){
+						this.renderSaleToken(tokenId, ytt, metadata, price, owner, address);
+					}
+
 				}
+
 										
 			})();
 		}
@@ -413,9 +485,28 @@ const App = {
 				var metadata = await this.getMetadata(tokenUri); // meta데이터
 				var price = await this.getTokenPrice(tokenId); // 판매 가격
 				var owner = await this.getOwnerOf(tokenId); // 토큰 소유자
-				if($.inArray(ytt[0].toUpperCase(),myfavworker) > -1){
-					this.renderFvWorkerTokens(tokenId, ytt, metadata, price, owner, address);
+	
+
+				if(deletework.length){
+
+					for( var j = 0; j < deletework.length; j ++){
+						if(deletework[j] == tokenId){
+	
+						} else{
+							if($.inArray(ytt[0].toUpperCase(),myfavworker) > -1){
+								this.renderFvWorkerTokens(tokenId, ytt, metadata, price, owner, address);
+							}
+						}
+					}
+					
+				} else{
+
+					if($.inArray(ytt[0].toUpperCase(),myfavworker) > -1){
+						this.renderFvWorkerTokens(tokenId, ytt, metadata, price, owner, address);
+					}
+
 				}
+
 										
 			})();
 		}
@@ -460,11 +551,15 @@ const App = {
 	renderMyTokens: function (tokenId, ytt, metadata, isApproved, price) {
 		var tokens = $('#myTokens');
 		var template = $('#MyTokensTemplate');
-
+		
 		this.getBasicTemplate(template, tokenId, ytt, metadata);
+		$('#MyTokensTemplate').find('.panel-heading').html(tokenId + '<a class="btn-delete-token trigger" id="' + tokenId + '"><i class="fas fa-trash-alt"></i></a>');
 
 		// 판매 허락을 했다면
 		if (isApproved) {
+			
+			$('.btn-delete-token').hide();
+
 			//price에 값이 있으면 판매버튼 안보이게
 			if (parseInt(price) > 0) {
 				template.find('.sell-token').hide();
@@ -532,6 +627,8 @@ const App = {
 		template.find('.token-owner').html("<div id='token-owner-sub' value='"+ owner_up + "'>" + owner_up +"</div>");
 		template.find('.token-maker').html("<div id='token-maker-sub' value='"+ ytt[0] + "'>" + ytt[0] +"</div>");
 
+		template.find('.panel-heading').html(tokenId + '<a class="btn-report-token trigger" id="report_' + tokenId + '"><i class="fas fa-satellite"></i></a>');
+
 		// 토큰 구매 보이기
 		if (parseInt(price) > 0) {
 			template.find('.buy-token').show();
@@ -561,6 +658,8 @@ const App = {
 		var owner_up = owner.toUpperCase()
 		template.find('.token-owner').html("<div id='token-owner-sub' value='"+ owner_up + "'>" + owner_up +"</div>");
 		template.find('.token-maker').html("<div id='token-maker-sub' value='"+ ytt[0] + "'>" + ytt[0] +"</div>");
+
+		template.find('.panel-heading').html(tokenId + '<a class="btn-report-token trigger" id="report_' + tokenId + '"><i class="fas fa-satellite"></i></a>');
 
 		// 토큰 구매 보이기
 		if (parseInt(price) > 0) {
@@ -1058,6 +1157,27 @@ $(document).ready(function () {
 
 	App.displayTrendTokens();
 
+		// 삭제된 작품 불러옴
+		$.ajax({
+			url: '/delete_worklist',
+			dataType: 'json',
+			async: true,
+			type: 'POST',
+			contentType: 'application/json; charset=UTF-8',
+			success: function (data) {
+				deletework = [];
+				if(data.length){
+					for(var i = 0; i < data.length; i ++){
+						deletework.push(data[i].token_id);
+					}
+				}
+				console.log("deletework : " + deletework);
+			},
+			error: function (err) {
+				console.log(err);
+			}
+		}); 
+
 	// 관심 작가 불러옴
 	$.ajax({
 		url: '/find_myfvworker',
@@ -1069,15 +1189,7 @@ $(document).ready(function () {
 			"myaddress" : localStorage.getItem("my_address")
 		}),
 		success: function (data) {
-			console.log(data);
-			myfavworker = [];
-			$('#myfvworker').empty();
-			$('#myfvworker').append("<strong> 내 관심작가 목록 </strong><br>")
-			for(var i = 0; i < data.length; i++){
-				myfavworker.push(data[i].worker);
-				$('#myfvworker').append("<p class='my_fv_list' id='" + data[i].fav_id + "'>" + data[i].worker + "</p>");
-			}
-			App.displayFvWorkerToken(localStorage.getItem("my_address"));
+			render_fvwork(data);
 		},
 		error: function (err) {
 			console.log(err);
@@ -1142,16 +1254,6 @@ $(document).ready(function () {
 
 	});		
 
-	function readNoteData(data){
-		var sender = data[0].sender;
-		note_sender = sender;
-		console.log("쪽지 보낸이 : " + note_sender);
-		var contents = data[0].contents;
-
-		$('.content-show').empty();
-		$('.content-show').html(sender + " : " + contents);
-		
-	}
 
 	// 쪽지보기 창 닫기
 	$(document).on('click','.btn-close-show',function(){
@@ -1225,6 +1327,59 @@ $(document).ready(function () {
 	$(document).on('click','.btn-report-token',function(e){
 		var token_id = e.currentTarget.id;
 		token_id = token_id.substring(7);
+		if(confirm("이 작품을 신고하겠습니까?")){
+			$.ajax({
+				url: '/report_work',
+				dataType: 'json',
+				async: true,
+				type: 'POST',
+				contentType: 'application/json; charset=UTF-8',
+				data: JSON.stringify({
+					"token_id" : token_id,
+					"address": localStorage.getItem("my_address")
+				}),
+				success: function (data) {
+					if(data.length){
+						alert("작품은 한번만 신고할 수 있습니다.");
+					} else{
+						alert("신고를 완료했습니다!");
+					}
+				},
+				error: function (err) {
+					alert(err);
+				}
+			}); 
+		} else{
+			return;
+		}
+	});
+
+	// 토큰 삭제 클릭
+	$(document).on('click','.btn-delete-token',function(e){
+		var token_id = e.currentTarget.id;	// 작가 주소
+		if(confirm("정말 작품을 삭제하시겠습니까?")){
+			$.ajax({
+				url: '/delete_work',
+				dataType: 'json',
+				async: true,
+				type: 'POST',
+				contentType: 'application/json; charset=UTF-8',
+				data: JSON.stringify({
+					"token_id" : token_id
+				}),
+				success: function (data) {
+		
+				},
+				error: function (err) {
+					alert(err);
+				}
+			}); 
+			alert("삭제하였습니다!")
+			location.reload();
+		} else{
+			return;
+		}
+
 	});
 
 	// 토큰 작가 클릭
@@ -1393,11 +1548,7 @@ $(document).ready(function () {
 					"search_type" : search_type
 				}),
 				success: function (data) {
-					for(var i = 0; i < data.length; i++){
-						tokenIdList.push(data[i].token_id);
-					}
-					console.log(tokenIdList);
-					App.displayFindTokens(localStorage.getItem("my_address"), tokenIdList);
+					search_tokenid(data);
 				},
 				error: function (err) {
 	
@@ -1405,6 +1556,39 @@ $(document).ready(function () {
 			}); 
 		}
 	});
+
+
+	function render_fvwork(data){
+		console.log(data);
+		myfavworker = [];
+		$('#myfvworker').empty();
+		$('#myfvworker').append("<strong> 내 관심작가 목록 </strong><br>")
+		for(var i = 0; i < data.length; i++){
+			myfavworker.push(data[i].worker);
+			$('#myfvworker').append("<p class='my_fv_list' id='" + data[i].fav_id + "'>" + data[i].worker + "</p>");
+		}
+		App.displayFvWorkerToken(localStorage.getItem("my_address"));
+	}
+
+
+	function readNoteData(data){
+		var sender = data[0].sender;
+		note_sender = sender;
+		console.log("쪽지 보낸이 : " + note_sender);
+		var contents = data[0].contents;
+
+		$('.content-show').empty();
+		$('.content-show').html(sender + " : " + contents);
+		
+	}
+
+	function search_tokenid(data){
+		for(var i = 0; i < data.length; i++){
+			tokenIdList.push(data[i].token_id);
+		}
+		console.log(tokenIdList);
+		App.displayFindTokens(localStorage.getItem("my_address"), tokenIdList);
+	}
 	
 
 });
