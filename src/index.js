@@ -125,6 +125,7 @@ const App = {
 
 		if(walletInstance.address.toUpperCase() == admin_address.toUpperCase() || walletInstance.address.toUpperCase() == localStorage.getItem("admin_address")){
 			this.changeUI_admin(walletInstance);
+			location.reload();
 
 		} else {
 			this.changeUI(walletInstance);
@@ -144,6 +145,8 @@ const App = {
 		$("#login").hide();
 		$('#logout').show();
 		$('.afterLogin').show();
+		$('#title_beforeLogin').hide();
+
 		var balance = 0;
 
 		cav.klay.getBalance(walletInstance.address).then(function (resolve, reject) {
@@ -164,6 +167,8 @@ const App = {
 		$("#login").hide();
 		$('#logout').show();
 		$('.afterLoginAdmin').show();
+		$('#title_beforeLogin').hide();
+		$('#title_afterAdminLogin').show();
 
 		await this.displayReportTokens(report_list);
 	},
@@ -324,7 +329,21 @@ const App = {
 					var ytt = await this.getYTT(tokenId); // ytt 클래스
 					var metadata = await this.getMetadata(tokenUri); // meta데이터
 
-					this.renderReportToken(tokenId, ytt, metadata);
+					if(deletework.length){
+						alert("여기요");
+						for( var j = 0; j < deletework.length; j ++){
+							if(deletework[j] == tokenId){
+	
+							} else{
+								this.renderReportToken(tokenId, ytt, metadata);
+							}
+						}
+
+					} else{
+						this.renderReportToken(tokenId, ytt, metadata);
+
+					}
+
 
 				})();
 			}

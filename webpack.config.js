@@ -60,11 +60,6 @@ module.exports = {
 
           connection.connect();
 
-
-          app.get("/admin-report", function(req, res){
-              res.sendFile(__dirname + '/src/admin.html');         
-          });
-          
            // 신고 개수 1개 이상인것들 불러옴
            app.post("/admin_report_list", bodyParser.json(), function(req, res){           
 
