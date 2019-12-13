@@ -354,10 +354,173 @@ a.btn {
 	text-align: center;
 	padding-top : 10px;
 	font-family: "Nanum Gothic", sans-serif;
+	height: 150px;
+	overflow:auto;
   }
 
+  #addWorker{
+	width: 150px;
+	height: 30%;
+	flex: 1 1 auto;
+	margin: 10px;
+	padding: 10px;
+	text-align: center;
+	text-transform: uppercase;
+	transition: 0.5s;
+	background-size: 200% auto;
+	color: white;
+   /* text-shadow: 0px 0px 10px rgba(0,0,0,0.2);*/
+	box-shadow: 0 0 20px #eee;
+	border-radius: 10px;
+	border: 0;
+	outline: 0;
+	background-image: linear-gradient(to right, #f78ca0 0%, #f9748f 19%, #fd868c 60%, #fe9a8b 100%);
+  }
+
+
+  #noWorker{
+	width: 150px;
+	height: 30%;
+	flex: 1 1 auto;
+	margin: 10px;
+	padding: 10px;
+	text-align: center;
+	text-transform: uppercase;
+	transition: 0.5s;
+	background-size: 200% auto;
+	color: white;
+   /* text-shadow: 0px 0px 10px rgba(0,0,0,0.2);*/
+	box-shadow: 0 0 20px #eee;
+	border-radius: 10px;
+	border: 0;
+	outline: 0;
+	background-image: linear-gradient(to right, #5D9FFF 0%, #B8DCFF 48%, #6BBBFF 100%);
+  }
+  
+#addWorker:hover , #noWorker:hover {
+	background-position: right center; /* change the direction of the change here */
+  }
+
+  .my_fv_list{
+	margin-top: 15px;
+  }
+
+  .my_fv_list:hover{
+	background-image: linear-gradient(to right, #f78ca0 0%, #f9748f 19%, #fd868c 60%, #fe9a8b 100%);
+  }
 
   /* 삭제버튼 */
   .fa-trash-alt{
 	color: #fff;
+  }
+
+
+  /* 쪽지함 input, button */
+
+  .btn-create-note{
+	  margin-top: 20px;
+	  background:#e2525c;
+	  color:#fff;
+	  border:none;
+	  position:relative;
+	  height:30px;
+	  padding:0 2em;
+	  cursor:pointer;
+	  transition:800ms ease all;
+	  outline:none;
+  }
+
+  .btn-create-note:hover{
+	background:#fff;
+	color:#e2525c;
+  }
+
+  .btn-create-note:before,.btn-create-note:after{
+	content:'';
+	position:absolute;
+	top:0;
+	right:0;
+	height:2px;
+	width:0;
+	background: #e2525c;
+	transition:400ms ease all;
+  }
+  .btn-create-note:after{
+	right:inherit;
+	top:inherit;
+	left:0;
+	bottom:0;
+  }
+  .btn-create-note:hover:before,.btn-create-note:hover:after{
+	width:100%;
+	transition:800ms ease all;
+  }
+  
+  #note_content{
+	  width: 500px;
+	  height: 150px;
+  }
+
+
+
+  .note_content_view{
+	margin-top: 20px;
+  }
+
+  #note_receiver{
+	width: 500px;
+  }
+
+  #note_content2{
+	width: 500px;
+	height: 50px;
+  }
+
+  #note_content_show{
+	text-align: center;
+  }
+
+  .content-show-sender{
+	margin-top: 20px;
+  }
+
+  .content-show-contents{
+	margin-top: 20px;
+  }
+
+
+  @import url(https://fonts.googleapis.com/css?family=Oswald:400|Open+Sans:700);
+
+  @import url(http://weloveiconfonts.com/api/?family=fontawesome);
+  
+  /* fontawesome */
+  [class*="fontawesome-"]:before {
+	font-family: 'FontAwesome', sans-serif;
+  }
+  
+
+  /* 로그인 로그아웃 버튼 */
+
+.btn-login, .btn-logout {
+	width: 150px;
+	height: 30%;
+	flex: 1 1 auto;
+	margin: 10px;
+	padding: 10px;
+	text-align: center;
+	text-transform: uppercase;
+	transition: 0.5s;
+	background-size: 200% auto;
+	color: white;
+   /* text-shadow: 0px 0px 10px rgba(0,0,0,0.2);*/
+	box-shadow: 0 0 20px #eee;
+	border-radius: 10px;
+	border: 0;
+	outline: 0;
+	background-image: linear-gradient(to right, #e0c3fc 0%, #8ec5fc 100%);
+}
+
+  
+.btn-login:hover , .btn-logout:hover {
+	background-position: right center; /* change the direction of the change here */
   }

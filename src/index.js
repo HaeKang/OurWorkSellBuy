@@ -125,7 +125,6 @@ const App = {
 
 		if(walletInstance.address.toUpperCase() == admin_address.toUpperCase() || walletInstance.address.toUpperCase() == localStorage.getItem("admin_address")){
 			this.changeUI_admin(walletInstance);
-			location.reload();
 
 		} else {
 			this.changeUI(walletInstance);
@@ -330,7 +329,6 @@ const App = {
 					var metadata = await this.getMetadata(tokenUri); // meta데이터
 
 					if(deletework.length){
-						alert("여기요");
 						for( var j = 0; j < deletework.length; j ++){
 							if(deletework[j] == tokenId){
 	
@@ -1106,8 +1104,8 @@ const App = {
 	readNotePage : function(page, event){
 		var go_url = '/notebox/' + page;
 		// css 변경
-		$('#note_list_page').attr("class","");
-		$(event).addClass("listClick");
+		//$('#note_list_page').attr("class","");
+		//$(event).addClass("listClick");
 
 
 		$.ajax({
@@ -1143,7 +1141,6 @@ const App = {
 		var contents = $('#note_content').val(); 
 		if(!contents){
 			contents = $('#note_content2').val();
-			alert(contents);
 		}
 
 		var sender = localStorage.getItem("my_address");
@@ -1362,7 +1359,15 @@ $(document).ready(function () {
 			"myaddress" : localStorage.getItem("my_address")
 		}),
 		success: function (data) {
-			render_fvwork(data);
+			console.log(data);
+			myfavworker = [];
+			$('#myfvworker').empty();
+			$('#myfvworker').append("<strong> 내 관심작가 목록 </strong><br>")
+			for(var i = 0; i < data.length; i++){
+				myfavworker.push(data[i].worker);
+				$('#myfvworker').append("<text class='my_fv_list' id='" + data[i].fav_id + "'>" + data[i].worker + "</text><br>");
+			}
+			App.displayFvWorkerToken(localStorage.getItem("my_address"));
 		},
 		error: function (err) {
 			console.log(err);
@@ -1431,7 +1436,15 @@ $(document).ready(function () {
 				"note_id": note_id
 			}),
 			success: function (data) {
-				readNoteData(data);
+				var sender = data[0].sender;
+				note_sender = sender;
+				console.log("쪽지 보낸이 : " + note_sender);
+				var contents = data[0].contents;
+
+				$('.content-show-sender').empty();
+				$('.content-show-contents').empty();
+				$('.content-show-sender').html("보낸사람 : "+sender);
+				$('.content-show-contents').html(contents);
 			},
 			error: function (err) {
 
@@ -1734,7 +1747,12 @@ $(document).ready(function () {
 					"search_type" : search_type
 				}),
 				success: function (data) {
-					search_tokenid(data);
+					tokenIdList = [];
+					for(var i = 0; i < data.length; i++){
+						tokenIdList.push(data[i].token_id);
+					}
+					console.log(tokenIdList);
+					App.displayFindTokens(localStorage.getItem("my_address"), tokenIdList);
 				},
 				error: function (err) {
 	
@@ -1743,39 +1761,6 @@ $(document).ready(function () {
 		}
 	});
 
-
-	function render_fvwork(data){
-		console.log(data);
-		myfavworker = [];
-		$('#myfvworker').empty();
-		$('#myfvworker').append("<strong> 내 관심작가 목록 </strong><br>")
-		for(var i = 0; i < data.length; i++){
-			myfavworker.push(data[i].worker);
-			$('#myfvworker').append("<p class='my_fv_list' id='" + data[i].fav_id + "'>" + data[i].worker + "</p>");
-		}
-		App.displayFvWorkerToken(localStorage.getItem("my_address"));
-	}
-
-
-	function readNoteData(data){
-		var sender = data[0].sender;
-		note_sender = sender;
-		console.log("쪽지 보낸이 : " + note_sender);
-		var contents = data[0].contents;
-
-		$('.content-show').empty();
-		$('.content-show').html(sender + " : " + contents);
-		
-	}
-
-	function search_tokenid(data){
-		for(var i = 0; i < data.length; i++){
-			tokenIdList.push(data[i].token_id);
-		}
-		console.log(tokenIdList);
-		App.displayFindTokens(localStorage.getItem("my_address"), tokenIdList);
-	}
-	
 
 });
 
