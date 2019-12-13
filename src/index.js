@@ -12,6 +12,7 @@ const testContract = new cav.klay.Contract(DEPLOYED_ABI, DEPLOYED_ADDRESS);
 const tsContract = new cav.klay.Contract(DEPLOYED_ABI_TOKENSALES, DEPLOYED_ADDRESS_TOKENSALES);
 
 var ipfsCilent = require('ipfs-http-client');
+
 var ipfs = ipfsCilent({
 	host: 'ipfs.infura.io',
 	port: '5001',
@@ -19,14 +20,18 @@ var ipfs = ipfsCilent({
 });
 
 var base64_src;
+var admin_address = "0x35387d5b8844621aff71fac22212125eff7b8be8";
+
 var tokenOwner_address = "";
 var fvWorker_address = ""
 var note_sender = "";
+
 var note_id;
 var img_input;
+
 var myfavworker = [];
 var deletework = [];	// 삭제작품
-
+var report_list = [];	// 신고목록
 
 const App = {
 	auth: {
@@ -40,8 +45,13 @@ const App = {
 		const walletFromSession = sessionStorage.getItem('walletInstance');
 		if (walletFromSession) {
 			try {
-				cav.klay.accounts.wallet.add(JSON.parse(walletFromSession));
-				this.changeUI(JSON.parse(walletFromSession));
+				const test_account = cav.klay.accounts.wallet.add(JSON.parse(walletFromSession));
+				if(test_account.address.toUpperCase() == admin_address.toUpperCase()){
+					this.changeUI_admin(JSON.parse(walletFromSession));
+				} else{
+					this.changeUI(JSON.parse(walletFromSession));
+				}
+				
 			} catch (e) {
 				sessionStorage.removeItem('walletInstance');
 			}
@@ -106,11 +116,20 @@ const App = {
 
 	integrateWallet: function (privateKey) {
 		const walletInstance = cav.klay.accounts.privateKeyToAccount(privateKey);
-		cav.klay.accounts.wallet.add(walletInstance)
+		cav.klay.accounts.wallet.add(walletInstance);
 		sessionStorage.setItem('walletInstance', JSON.stringify(walletInstance));	
-		localStorage.setItem("my_address",walletInstance.address.toUpperCase())
-		this.changeUI(walletInstance);
-		location.reload();
+		
+		localStorage.setItem("my_address",walletInstance.address.toUpperCase());
+		localStorage.setItem("admin_address",admin_address.toUpperCase());
+
+
+		if(walletInstance.address.toUpperCase() == admin_address.toUpperCase() || walletInstance.address.toUpperCase() == localStorage.getItem("admin_address")){
+			this.changeUI_admin(walletInstance);
+
+		} else {
+			this.changeUI(walletInstance);
+			location.reload();
+		}
 	},
 
 	reset: function () {
@@ -140,6 +159,14 @@ const App = {
 		await this.checkApproval(walletInstance);
 	},
 
+	changeUI_admin : async function (walletInstance) {
+		$('#loginModal').modal('hide');
+		$("#login").hide();
+		$('#logout').show();
+		$('.afterLoginAdmin').show();
+
+		await this.displayReportTokens(report_list);
+	},
 
 
 	removeWallet: function () {
@@ -153,6 +180,7 @@ const App = {
 		return new Spinner(opts).spin(target);
 	},
 	//#endregion
+
 
 	checkTokenExists: async function () {
 		var tokenId = $('#tokenId').val();
@@ -283,6 +311,42 @@ const App = {
 			});
 	},
 
+	displayReportTokens: async function (report_list) {
+		if (report_list.length == 0) {
+			$('#ReportToken').text("해당하는 토큰이 없습니다.");
+		} else {
+			$('#ReportToken').empty();
+			for (var i = 0; i < report_list.length; i++) {
+				(async () => {
+					// tokenId 받아옴
+					var tokenId = report_list[i];
+					var tokenUri = await this.getTokenUri(tokenId); // token uri(infa였나 그거 주소 meta데이터 갖고있는 주소)
+					var ytt = await this.getYTT(tokenId); // ytt 클래스
+					var metadata = await this.getMetadata(tokenUri); // meta데이터
+
+					this.renderReportToken(tokenId, ytt, metadata);
+
+				})();
+			}
+		}
+	},
+	
+	renderReportToken: function (tokenId, ytt, metadata) {
+		var tokens = $('#ReportToken');
+		var template = $('#ReportTokenTemplate');
+		
+		template.find('.panel-heading').text(tokenId);
+		template.find('img').attr('src', metadata.properties.image.description);
+		template.find('img').attr('title', "작가: " + ytt[0]);
+		template.find('.video-id').text(metadata.properties.name.description);
+		template.find('.author').text(metadata.properties.description.description);
+		template.find('.date-created').text(ytt[1]);
+        template.find('.panel-heading').html(tokenId + '<a class="btn-delete-token trigger" id="' + tokenId + '"><i class="fas fa-trash-alt"></i></a>');
+        
+		tokens.append(template.html());
+    },
+	
+	
 	displayMyTokensAndSale: async function (walletInstance) {
 		// 계정이 보유한 토큰 개수
 		var balance = parseInt(await this.getBalanceOf(walletInstance.address));
@@ -1224,6 +1288,28 @@ window.addEventListener("load", function () {
 $(document).ready(function () {
 
 	App.displayTrendTokens();
+
+		// 신고목록 불러옴
+		$.ajax({
+			url: '/admin_report_list',
+			dataType: 'json',
+			async: true,
+			type: 'POST',
+			contentType: 'application/json; charset=UTF-8',
+			success: function (data) {
+				report_list = [];
+				if(data.length){
+					for(var i = 0; i < data.length; i ++){
+						report_list.push(data[i].token_id);
+					}
+				}
+				console.log("report_list : " + report_list);
+			},
+			error: function (err) {
+				console.log(err);
+			}
+        }); 
+
 
 		// 삭제된 작품 불러옴
 		$.ajax({

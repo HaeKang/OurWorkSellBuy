@@ -61,11 +61,21 @@ module.exports = {
           connection.connect();
 
 
-          app.get("/test", function(req, res){
-              console.log(req);
-              res.sendFile(__dirname + '/src/test.html');         
+          app.get("/admin-report", function(req, res){
+              res.sendFile(__dirname + '/src/admin.html');         
           });
           
+           // 신고 개수 1개 이상인것들 불러옴
+           app.post("/admin_report_list", bodyParser.json(), function(req, res){           
+
+            var sql = 'select token_id, sum(report_check) as report_count from report group by token_id having sum(report_check) >= 1';
+            
+            connection.query(sql, function (error, result) {
+              res.send(result)
+            });
+
+          });
+
           
           // 쪽지함 불러오기 4개씩 끊어서
           app.post("/notebox/:page", bodyParser.json(), function(req, res){           
