@@ -524,3 +524,15 @@ a.btn {
 .btn-login:hover , .btn-logout:hover {
 	background-position: right center; /* change the direction of the change here */
   }
+
+
+  /* 토큰창 */
+
+
+  .panel-heading{
+	background-image: linear-gradient(to right, #e0c3fc 0%, #8ec5fc 100%);
+  }
+
+  .panel{
+	  border-color: rgb(165, 165, 165) ;
+  }

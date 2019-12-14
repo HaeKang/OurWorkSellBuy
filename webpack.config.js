@@ -200,11 +200,13 @@ module.exports = {
           // 이미지 중복확인 클릭 시 image 테이블에 넣음
         app.post("/imageinsert", function(req, res){           
             var image = req.body.image;
+            var img_id = req.body.img_id;
 
-            var sql = 'insert into image(image, dupli) values(?,?)'
+            var sql = 'insert into image(img_id,image, dupli) values(?,?)'
 
-            connection.query(sql, [image,"0"] , function (error, result) {
-                
+            connection.query(sql, [img_id,image,"0"] , function (error, result) {
+                console.log(error);
+                console.log(result);
             });
         });
 
@@ -299,16 +301,18 @@ module.exports = {
        app.post("/report_work", function(req, res){           
         var token_id = req.body.token_id;
         var address = req.body.address;
+        var reason = req.body.reason;
+
 
         var sql1 = 'select * from report where token_id = ? and address = ?'
-        var sql2 = 'insert into report(token_id, address, report_check) values(?,?,?)';
+        var sql2 = 'insert into report(token_id, address, report_check,reason) values(?,?,?,?)';
 
         connection.query(sql1, [token_id, address] , function (error, result) {
           if(error){ 
             console.log(error); 
           } else{
             if(!result.length){
-              connection.query(sql2, [token_id, address, "1"] , function (error, result) {
+              connection.query(sql2, [token_id, address, "1",reason] , function (error, result) {
                 if(error){ console.log(error); }
                 res.send(result)
               });
@@ -319,6 +323,21 @@ module.exports = {
         });
 
       });
+
+        // 신고사유
+       app.post("/report_reason", function(req, res){           
+        var token_id = req.body.token_id;
+
+        var sql = 'select reason from report where token_id = ?'
+
+        connection.query(sql, [token_id] , function (error, result) {
+          if(error){console.log(error)}
+          res.send(result);
+        });
+
+      });
+
+
 
        // 삭제된 목록
        app.post("/delete_worklist", function(req, res){           

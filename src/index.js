@@ -33,6 +33,9 @@ var myfavworker = [];
 var deletework = [];	// 삭제작품
 var report_list = [];	// 신고목록
 
+
+var image_check = false;
+
 const App = {
 	auth: {
 		accessType: 'keystore',
@@ -201,6 +204,11 @@ const App = {
 	createToken: async function () {
 		console.log(base64_src);
 
+		if ( !image_check ){
+			alert("이미지 중복확인을 먼저 해주세요!");
+			return;
+		}
+
 		var spinner = this.showSpinner();
 
 		var id = $('#tokenId').val(); // 작품아이디 -> DB
@@ -328,38 +336,66 @@ const App = {
 					var ytt = await this.getYTT(tokenId); // ytt 클래스
 					var metadata = await this.getMetadata(tokenUri); // meta데이터
 
-					if(deletework.length){
-						for( var j = 0; j < deletework.length; j ++){
-							if(deletework[j] == tokenId){
-	
-							} else{
-								this.renderReportToken(tokenId, ytt, metadata);
+					var report_reason = [];
+
+					// DB에 넣기
+					$.ajax({
+						url: '/report_reason',
+						dataType: 'json',
+						async: true,
+						type: 'POST',
+						contentType: 'application/json; charset=UTF-8',
+						data: JSON.stringify({
+							"token_id": tokenId
+						}),
+						success: function (data) {
+
+							for(var k = 0; k < data.length; k++){
+								report_reason.push(data[k].reason);
 							}
+
+							if(deletework.length){
+								for( var j = 0; j < deletework.length; j ++){
+									if(deletework[j] == tokenId){
+			
+									} else{
+										App.renderReportToken(tokenId, ytt, metadata,report_reason);
+									}
+								}
+							} else{
+								App.renderReportToken(tokenId, ytt, metadata,report_reason);
+		
+							}
+						},
+						error: function (err) {
+							console.log("에러발생");
 						}
+					});
 
-					} else{
-						this.renderReportToken(tokenId, ytt, metadata);
-
-					}
-
+					
 
 				})();
 			}
 		}
 	},
 	
-	renderReportToken: function (tokenId, ytt, metadata) {
+	renderReportToken: function (tokenId, ytt, metadata, report_reason) {
 		var tokens = $('#ReportToken');
 		var template = $('#ReportTokenTemplate');
-		
+
+
 		template.find('.panel-heading').text(tokenId);
 		template.find('img').attr('src', metadata.properties.image.description);
 		template.find('img').attr('title', "작가: " + ytt[0]);
 		template.find('.video-id').text(metadata.properties.name.description);
-		template.find('.author').text(metadata.properties.description.description);
-		template.find('.date-created').text(ytt[1]);
+		template.find('.author').text(ytt[0]);
         template.find('.panel-heading').html(tokenId + '<a class="btn-delete-token trigger" id="' + tokenId + '"><i class="fas fa-trash-alt"></i></a>');
-        
+		
+		for(var i = 0; i < report_reason.length; i ++){
+			template.find('.reason').append((i+1) + "번째, " + report_reason[i] + "<br>");
+			console.log( report_reason[i]);
+		}
+		
 		tokens.append(template.html());
     },
 	
@@ -1259,9 +1295,8 @@ const App = {
 		}
 	},
 
+		// 여기 부분 해야함
 	checkImgSim : function(){
-
-		var spinner = this.showSpinner();
 
 		if(base64_src){
 
@@ -1272,21 +1307,21 @@ const App = {
 				type: 'POST',
 				contentType: 'application/json; charset=UTF-8',
 				data: JSON.stringify({
-					"image": base64_src
+					"image": base64_src,
+					"img_id": "?"
 				}),
 				success: function () {
-					
 				},
 				error: function (err) {
 					console.log("에러발생");
 				}
 			});
 
-
+			$('#sim-message').text("토큰화 가능한 이미지입니다.");
+			image_check = true;
 
 		} else{
 			alert("이미지를 업로드해주세요!");
-			spinner.stop();
 		}
 	}
 
@@ -1526,7 +1561,9 @@ $(document).ready(function () {
 	$(document).on('click','.btn-report-token',function(e){
 		var token_id = e.currentTarget.id;
 		token_id = token_id.substring(7);
-		if(confirm("이 작품을 신고하겠습니까?")){
+		var inputString = prompt("신고 사유를 적어주세요");
+		
+		if(inputString){
 			$.ajax({
 				url: '/report_work',
 				dataType: 'json',
@@ -1535,7 +1572,9 @@ $(document).ready(function () {
 				contentType: 'application/json; charset=UTF-8',
 				data: JSON.stringify({
 					"token_id" : token_id,
-					"address": localStorage.getItem("my_address")
+					"address": localStorage.getItem("my_address"),
+					"reason" : inputString
+
 				}),
 				success: function (data) {
 					if(data.length){
@@ -1549,7 +1588,7 @@ $(document).ready(function () {
 				}
 			}); 
 		} else{
-			return;
+			alert("신고 사유를 적어주세요!");
 		}
 	});
 

@@ -386,6 +386,7 @@
 						<input type="file" class="form-control" id="img_test-id" onchange="App.showIMG(this)">
 						<p>
 							<img src="" alt="" width="118" height="153" id="imgPreview">
+							<p id="sim-message"></p>
 						</p>
 						<button id="check_img_sim" onclick="App.checkImgSim()">중복확인</button>
 					</div>
@@ -654,9 +655,10 @@
 			<div class="panel-body">
 				<img style="width: 100%; height: 250px;" src="" title="">
 				<br /><br />
-				<strong>작품ID</strong>: <span class="video-id"></span><br />
-				<strong>작품설명</strong>: <span class="author"></span><br />
-				<strong>게시일</strong>: <span class="date-created"></span><br />
+				<strong>작품ID</strong>: <span class="video-id"></span><br /> <br>
+				<strong>작가</strong> <br><span class="author"></span><br /> <br>
+				<strong>신고사유</strong> <br>
+				<span class="reason"></span>
 			</div>
 			<div class="panel-footer clearfix">
 				<h5 class="on-sale" style="color:red;"></h5>
