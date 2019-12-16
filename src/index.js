@@ -350,6 +350,8 @@ const App = {
 						}),
 						success: function (data) {
 
+							var thisTokenDelete = false
+
 							for(var k = 0; k < data.length; k++){
 								report_reason.push(data[k].reason);
 							}
@@ -357,11 +359,14 @@ const App = {
 							if(deletework.length){
 								for( var j = 0; j < deletework.length; j ++){
 									if(deletework[j] == tokenId){
-			
-									} else{
-										App.renderReportToken(tokenId, ytt, metadata,report_reason);
-									}
+										thisTokenDelete = true;
+									} 
 								}
+
+								if(!thisTokenDelete){
+									App.renderReportToken(tokenId, ytt, metadata,report_reason);
+								}
+
 							} else{
 								App.renderReportToken(tokenId, ytt, metadata,report_reason);
 		
@@ -407,45 +412,50 @@ const App = {
 		if (balance == 0) {
 			$('#myTokens').text("현재 보유한 토큰이 없습니다");
 		} else {
-
+			$('#myTokens').empty();
 			var isApproved = await this.isApprovedForAll(walletInstance.address, DEPLOYED_ADDRESS_TOKENSALES);
 
 			// 내가 가진 토큰들 보여줌
 			for (var i = 0; i < balance; i++) {
 				(async () => {
 					// tokenId 받아옴
-					var tokenId = await this.getTokenOfOwnerByIndex(walletInstance.address, i);
-					var tokenUri = await this.getTokenUri(tokenId);
-					var ytt = await this.getYTT(tokenId);
-					var metadata = await this.getMetadata(tokenUri);
-					var price = await this.getTokenPrice(tokenId); // 소유자의 토큰 중 판매중인지 아닌지 price값을 통해 알아보자
+					 var tokenId = await this.getTokenOfOwnerByIndex(walletInstance.address, i);
+					 var tokenUri = await this.getTokenUri(tokenId);
+					 var ytt = await this.getYTT(tokenId);
+					 var metadata = await this.getMetadata(tokenUri);
+					 var price = await this.getTokenPrice(tokenId); // 소유자의 토큰 중 판매중인지 아닌지 price값을 통해 알아보자
 
-				
-					if(deletework.length){
+					 if(deletework.length){
+						
+						var thisTokenDelete = false;
 
-						for( var j = 0; j < deletework.length; j ++){
+						for(var j = 0; j < deletework.length; j++){
 							if(deletework[j] == tokenId){
-	
-							} else{
-								this.renderMyTokens(tokenId, ytt, metadata, isApproved, price);
-	
-								if (parseInt(price) > 0) {
-									// 0보다 크면 판매중인 토큰
-									this.renderMyTokensSale(tokenId, ytt, metadata, price);
-								}
+								thisTokenDelete = true;
 							}
 						}
 
-					} else{
+						if(!thisTokenDelete){
+							this.renderMyTokens(tokenId, ytt, metadata, isApproved, price);
+	
+							if (parseInt(price) > 0) {
+								// 0보다 크면 판매중인 토큰
+								this.renderMyTokensSale(tokenId, ytt, metadata, price);
+							}
 
+						}
+	
+					} else{
+	
 						this.renderMyTokens(tokenId, ytt, metadata, isApproved, price);
 	
 						if (parseInt(price) > 0) {
 							// 0보다 크면 판매중인 토큰
 							this.renderMyTokensSale(tokenId, ytt, metadata, price);
 						}
-
+	
 					}
+
 
 				})();
 			}
@@ -470,13 +480,18 @@ const App = {
 					
 
 					if(deletework.length){
+						var thisTokenDelete = false;
 
-						for( var j = 0; j < deletework.length; j ++){
+						for(var j = 0; j < deletework.length; j++){
 							if(deletework[j] == tokenId){
-	
-							} else{
-								this.renderAllTokens(tokenId, ytt, metadata, price, owner, walletInstance);
+								thisTokenDelete = true;
 							}
+						}
+
+						if(thisTokenDelete){
+							console.log(tokenId + " 는 삭제");
+						}else{
+							this.renderAllTokens(tokenId, ytt, metadata, price, owner, walletInstance);
 						}
 
 					} else{
@@ -531,12 +546,16 @@ const App = {
 
 					if(deletework.length){
 
-						for( var j = 0; j < deletework.length; j ++){
+						var thisTokenDelete = false;
+
+						for(var j = 0; j < deletework.length; j++){
 							if(deletework[j] == tokenId){
-	
-							} else{
-								this.renderSearchTokens(tokenId, ytt, metadata, price, owner, address);
+								thisTokenDelete = true;
 							}
+						}
+
+						if(!thisTokenDelete){
+							this.renderSearchTokens(tokenId, ytt, metadata, price, owner, address);
 						}
 
 					} else{
@@ -565,13 +584,17 @@ const App = {
 
 				if(deletework.length){
 
-					for( var j = 0; j < deletework.length; j ++){
+					var thisTokenDelete = false;
+
+					for(var j = 0; j < deletework.length; j++){
 						if(deletework[j] == tokenId){
-	
-						} else{
-							if(price > 0){
-								this.renderSaleToken(tokenId, ytt, metadata, price, owner, address);
-							}
+							thisTokenDelete = true;
+						}
+					}
+
+					if(!thisTokenDelete){
+						if(price > 0){
+							this.renderSaleToken(tokenId, ytt, metadata, price, owner, address);
 						}
 					}
 
@@ -606,15 +629,19 @@ const App = {
 
 				if(deletework.length){
 
-					for( var j = 0; j < deletework.length; j ++){
-						if(deletework[j] == tokenId){
-	
-						} else{
+						var thisTokenDelete = false;
+
+						for(var j = 0; j < deletework.length; j++){
+							if(deletework[j] == tokenId){
+								thisTokenDelete = true;
+							}
+						}
+
+						if(!thisTokenDelete){
 							if($.inArray(ytt[0].toUpperCase(),myfavworker) > -1){
 								this.renderFvWorkerTokens(tokenId, ytt, metadata, price, owner, address);
 							}
-						}
-					}
+						} 
 
 				} else{
 
@@ -1071,6 +1098,7 @@ const App = {
 
 				$('#imgPreview').attr('src', e.target.result);
 				base64_src = e.target.result; // base64 코드
+				console.log(base64_src);
 
 			}
 			filedr.readAsDataURL(img_input.files[0]);
@@ -1299,6 +1327,7 @@ const App = {
 	checkImgSim : function(){
 
 		if(base64_src){
+			var base64_mod = base64_src.substring(23);
 
 			$.ajax({
 				url: '/imageinsert',
@@ -1307,22 +1336,93 @@ const App = {
 				type: 'POST',
 				contentType: 'application/json; charset=UTF-8',
 				data: JSON.stringify({
-					"image": base64_src,
-					"img_id": "?"
+					"image": base64_mod
 				}),
 				success: function () {
 				},
 				error: function (err) {
-					console.log("에러발생");
+					console.log(err);
 				}
 			});
 
-			$('#sim-message').text("토큰화 가능한 이미지입니다.");
-			image_check = true;
+			var spinner = this.showSpinner();
+
+			setTimeout(function(base64_mod){
+				base64_mod = base64_src.substring(23);
+				App.checkImgDup(base64_mod);
+				spinner.stop();
+			}, 30000);	// 30초 후에 시행
+
 
 		} else{
 			alert("이미지를 업로드해주세요!");
 		}
+		
+	},
+
+	checkImgDup : function(base64_mod){
+
+		$.ajax({
+			url: '/imageresult',
+			dataType: 'json',
+			async: true,
+			type: 'POST',
+			contentType: 'application/json; charset=UTF-8',
+			data: JSON.stringify({
+				"image": base64_mod
+			}),
+			success: function (data) {
+				console.log(data);
+				if(data.length){
+					
+					var dup = data[0].dupli;
+					var face = data[0].face;
+
+					// 유사도 문제 없으면
+					if(dup == 0){
+
+						if(face > 0){
+							if(confirm("얼굴이 " + face + "개 인식되었습니다. 초상권에 문제가 없나요?")){						
+								$('#sim-message').text("토큰화 가능한 이미지입니다.");
+								image_check = true;
+								
+
+							} else{	// 문제가 있으면
+								base64_src = "";
+								$("#img_test-id").replaceWith( $("#img_test-id").clone(true) );
+								$("#img_test-id").val("");
+								$('#sim-message').text("초상권에 문제가 있습니다. 다른 작품을 올려주세요.");
+							}
+
+						} else{	 // face가 없으면
+							$('#sim-message').text("토큰화 가능한 이미지입니다.");
+							image_check = true;
+						}
+
+					} else{		// 유사도 문제 있으면
+						base64_src = "";
+						$("#img_test-id").replaceWith( $("#img_test-id").clone(true) );
+						$("#img_test-id").val("");
+						$('#sim-message').text("토큰화 불가능한 이미지입니다.");
+						image_check = false;
+						
+					}
+
+
+				} else{
+					base64_src = "";
+					$("#img_test-id").replaceWith( $("#img_test-id").clone(true) );
+					$("#img_test-id").val("");
+					alert("오류발생, 이미지를 다시 올려주세요");
+					
+				
+				}
+			},
+			error: function (err) {
+				console.log(err);
+			}
+		});
+		
 	}
 
 };

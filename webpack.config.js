@@ -200,24 +200,29 @@ module.exports = {
           // 이미지 중복확인 클릭 시 image 테이블에 넣음
         app.post("/imageinsert", function(req, res){           
             var image = req.body.image;
-            var img_id = req.body.img_id;
 
-            var sql = 'insert into image(img_id,image, dupli) values(?,?)'
+            var sql = 'insert into image(img, dupli,face) values(?,?,?)';
+            var sql2 = 'select img_id from image where img = ?';
 
-            connection.query(sql, [img_id,image,"0"] , function (error, result) {
-                console.log(error);
-                console.log(result);
+            connection.query(sql2, [image] , function (error, result) {
+              if(!result.length){
+                connection.query(sql, [image,"0","0"] , function (error, result) {
+                  if(error){console.log(error);}
+                 });
+              }
             });
+
         });
 
 
         app.post("/imageresult", function(req, res){           
           var image = req.body.image;
 
-          var sql = 'insert into image(image, dupli) values(?,?)'
+          var sql = 'select img_id,dupli,face from image where img = ?'
 
           connection.query(sql, [image] , function (error, result) {
-              
+              if(error){console.log(error);}
+              res.send(result);
           });
       });
 

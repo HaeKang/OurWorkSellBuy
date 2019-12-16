@@ -10,7 +10,7 @@ contract TestToken is ERC721Full{
     string category;
   }
   mapping (uint256 => TestToken) Tests; // 토큰id와 유튜브섬네일 구조체 매핑
-  mapping (string => uint256) videoIdsCreated;  // testId(작품아이디)와 토큰 매핑
+  mapping (string => uint256) WorkIdsCreated;  // testId(작품아이디)와 토큰 매핑
 
   constructor(string memory name, string memory symbol) ERC721Full(name, symbol) public {}
   
@@ -26,11 +26,11 @@ contract TestToken is ERC721Full{
     public 
   {
       // 유효성검사, 비디오아이디가 이미 있는지 확인
-      require(videoIdsCreated[_workId] == 0, "videoId has already been created");
+      require(WorkIdsCreated[_workId] == 0, "videoId has already been created");
       uint256 tokenId = totalSupply().add(1); // totalSupply에 1을 더한 값이 tokenId
       
       Tests[tokenId] = TestToken(_author, _dateCreated, _category);
-      videoIdsCreated[_workId] = tokenId;
+      WorkIdsCreated[_workId] = tokenId;
 
       // 토큰 발행
       _mint(msg.sender, tokenId); 
@@ -44,6 +44,6 @@ contract TestToken is ERC721Full{
 
   // videoId가 사용됐었는지 확인, 0이 아니면 이미 사용됨(true) 0이면 사용안됨(false)
   function isTokenAlreadyCreated(string memory _workId) public view returns (bool){
-    return videoIdsCreated[_workId] != 0 ? true : false;
+    return WorkIdsCreated[_workId] != 0 ? true : false;
   }
 }
