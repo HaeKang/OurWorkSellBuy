@@ -567,3 +567,15 @@ a.btn {
   #img_show_div{
 	  text-align: center;
   }
+
+  .btn-like-token,
+  .btn-delete-like{
+	float: right;
+	margin-left: 10px;
+	font-size: 20px;
+	display: block;
+  }
+
+  .fa-heart{
+	  color: white;
+  }

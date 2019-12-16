@@ -197,6 +197,69 @@ module.exports = {
 
         });
 
+        
+        // 관심 작품 추가
+        app.post("/add_like_work", function(req, res){           
+          var myaddress = req.body.myaddress;
+          var token_id = req.body.token_id;
+
+          var sql1 = 'select token_id from fvWork where myaddress = ? and token_id = ?'
+          var sql2 = 'insert into fvWork(myaddress, token_id) values(?,?)';
+
+          connection.query(sql1, [myaddress, token_id] , function (error, result) {
+              if(!result.length){
+                connection.query(sql2, [myaddress, token_id] , function (error, result) {
+                  if(error){ 
+                    console.log(error); 
+                    res.send(error);
+                  } else{
+                    res.send(result);
+                  }         
+                });
+              } else{
+                res.send(result);
+              }
+          });
+      });
+
+        // 관심 작품 삭제
+        app.post("/delete_like_work", function(req, res){           
+          var faw_id = req.body.faw_id;
+          
+          var sql = 'delete from fvWork where faw_id = ?';
+
+
+          connection.query(sql, [faw_id] , function (error, result) {
+            if(error){ 
+              console.log(error); 
+              res.send(error);
+            } 
+            console.log(result);
+          });
+
+      });
+
+        // 관심 작품 불러오기
+        app.post("/read_like_work", function(req, res){           
+          var myaddress = req.body.myaddress;
+
+          var sql = 'select token_id, faw_id  from fvWork where myaddress = ?';
+
+          connection.query(sql, [myaddress] , function (error, result) {
+            if(error){ 
+              console.log(error); 
+              res.send(error);
+            } else{
+              res.send(result);
+            }
+
+            
+          });
+
+      });
+
+
+
           // 이미지 중복확인 클릭 시 image 테이블에 넣음
         app.post("/imageinsert", function(req, res){           
             var image = req.body.image;

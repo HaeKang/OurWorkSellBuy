@@ -29,7 +29,9 @@ var note_sender = "";
 var note_id;
 var img_input;
 
-var myfavworker = [];
+var myfavworker = [];	// 관심 작가
+var myfavwork = [];		// 관심 작품
+var myfavwokr_id = [];	// 관심 작품 id
 var deletework = [];	// 삭제작품
 var report_list = [];	// 신고목록
 
@@ -657,7 +659,87 @@ const App = {
 		
 	},
 
-	// 모든 토큰 렌더링
+	displayFvWorkToken: async function (address,myfavwokr_id) {
+		$('#favoriteWork').empty();
+		
+		for (var i = 0; i < myfavwork.length; i++) {
+			(async () => {
+				// tokenId 받아옴
+				
+				var tokenId = myfavwork[i];
+				var faw_id = myfavwokr_id[i];
+				var tokenUri = await this.getTokenUri(tokenId); // token uri(infa였나 그거 주소 meta데이터 갖고있는 주소)
+				var ytt = await this.getYTT(tokenId); // ytt 클래스
+				var metadata = await this.getMetadata(tokenUri); // meta데이터
+				var price = await this.getTokenPrice(tokenId); // 판매 가격
+				var owner = await this.getOwnerOf(tokenId); // 토큰 소유자
+				
+
+				if(deletework.length){
+						
+						var thisTokenDelete = false;
+
+						for(var j = 0; j < deletework.length; j++){
+							if(deletework[j] == tokenId){
+								thisTokenDelete = true;
+								console.log("여기"+deletework[j] + ", " + tokenId);
+							}
+						}
+
+						console.log(thisTokenDelete);
+						if(!thisTokenDelete){
+					
+							this.renderFvWorkTokens(tokenId, ytt, metadata, price, owner, address,faw_id);							
+						} 
+
+				} else{
+				
+					this.renderFvWorkTokens(tokenId, ytt, metadata, price, owner, address,faw_id);	
+
+				}
+
+										
+			})();
+		}
+		
+	},
+
+	// 관심작품 토큰 렌더링
+	renderFvWorkTokens: function (tokenId, ytt, metadata, price, owner, address,faw_id) {
+		var tokens = $('#favoriteWork');
+		var template = $('#AllTokensTemplate');
+
+		this.getBasicTemplate(template, tokenId, ytt, metadata);
+
+		var author = ytt[0].toUpperCase()
+		var owner_up = owner.toUpperCase()
+		template.find('.token-owner').html("<div id='token-owner-sub' value='"+ owner_up + "'>" + owner_up +"</div>");	// 토큰소유자
+		template.find('.token-maker').html("<div id='token-maker-sub' value='"+ author + "'>" + author +"</div>");	// 작가
+
+		template.find('.panel-heading').html(tokenId + '<a class="btn-delete-like trigger" id="' + faw_id + '"><i class="fas fa-trash-alt"></i></a>' +
+			'<a class="btn-report-token trigger" id="report_' + tokenId + '"><i class="fas fa-satellite"></i></a>');
+
+		// 토큰 구매 보이기
+		if (parseInt(price) > 0) {
+			template.find('.buy-token').show();
+
+			// 로그인한 회원이 판매중인 토큰 주인이라면
+			if (owner.toUpperCase() === address) {
+				template.find('.btn-buy').attr('disabled', true);
+				template.find('.token-price').html("보유 중인 토큰<br>"+cav.utils.fromPeb(price, 'KLAY') + "KLAY에 판매중");
+			} else {
+				template.find('.btn-buy').attr('disabled', false);
+				template.find('.token-price').text(cav.utils.fromPeb(price, 'KLAY') + "KLAY에 판매중");
+			}
+
+		} else {
+			template.find('.buy-token').hide();
+		}
+
+		tokens.append(template.html());
+	},
+
+	// 관심작가 토큰 렌더링
 	renderFvWorkerTokens: function (tokenId, ytt, metadata, price, owner, address) {
 		var tokens = $('#workerTokens');
 		var template = $('#AllTokensTemplate');
@@ -739,7 +821,8 @@ const App = {
 		template.find('.token-owner').html("<div id='token-owner-sub' value='"+ owner_up + "'>" + owner_up +"</div>");	// 토큰소유자
 		template.find('.token-maker').html("<div id='token-maker-sub' value='"+ author + "'>" + author +"</div>");	// 작가
 
-		template.find('.panel-heading').html(tokenId + '<a class="btn-report-token trigger" id="report_' + tokenId + '"><i class="fas fa-satellite"></i></a>');
+		template.find('.panel-heading').html(tokenId + '<a class="btn-like-token trigger" id="report_'+ tokenId + '"><i class="fas fa-heart"></i></i></a>' 
+		+'<a class="btn-report-token trigger" id="report_' + tokenId + '"><i class="fas fa-satellite"></i></a>');
 
 		// 토큰 구매 보이기
 		if (parseInt(price) > 0) {
@@ -1483,6 +1566,7 @@ $(document).ready(function () {
 			}
 		}); 
 
+
 	// 관심 작가 불러옴
 	$.ajax({
 		url: '/find_myfvworker',
@@ -1503,6 +1587,33 @@ $(document).ready(function () {
 				$('#myfvworker').append("<text class='my_fv_list' id='" + data[i].fav_id + "'>" + data[i].worker + "</text><br>");
 			}
 			App.displayFvWorkerToken(localStorage.getItem("my_address"));
+		},
+		error: function (err) {
+			console.log(err);
+		}
+	}); 
+
+	// 관심 작품 불러옴 수정하기
+	$.ajax({
+		url: '/read_like_work',
+		dataType: 'json',
+		async: true,
+		type: 'POST',
+		contentType: 'application/json; charset=UTF-8',
+		data: JSON.stringify({
+			"myaddress" : localStorage.getItem("my_address")
+		}),
+		success: function (data) {
+			console.log(data);
+			myfavwork = [];
+			myfavwokr_id = [];
+			$('#favoriteWork').empty();
+			
+			for(var i = 0; i < data.length; i++){
+				myfavwork.push(data[i].token_id);
+				myfavwokr_id.push(data[i].faw_id);
+			}
+			App.displayFvWorkToken(localStorage.getItem("my_address"),myfavwokr_id);
 		},
 		error: function (err) {
 			console.log(err);
@@ -1690,6 +1801,71 @@ $(document).ready(function () {
 		} else{
 			alert("신고 사유를 적어주세요!");
 		}
+	});
+
+	// 토큰 하트 버튼 클릭
+	$(document).on('click','.btn-like-token',function(e){
+		var token_id = e.currentTarget.id;
+		token_id = token_id.substring(7);
+
+		if(confirm("관심작품에 추가할까요?")){
+			$.ajax({
+				url: '/add_like_work',
+				dataType: 'json',
+				async: true,
+				type: 'POST',
+				contentType: 'application/json; charset=UTF-8',
+				data: JSON.stringify({
+					"token_id" : token_id,
+					"myaddress": localStorage.getItem("my_address")
+				}),
+				success: function (data) {
+					if(data.length){
+						alert("이미 추가한 작품입니다!");
+					} else{
+						alert("추가하였습니다!");
+						location.reload();
+					}
+				},
+				error: function (err) {
+					alert(err);
+				}
+			}); 
+		} else{
+			return;
+		}
+		
+	});
+
+	// 관심작품 삭제
+	$(document).on('click','.btn-delete-like',function(e){
+		var faw_id = e.currentTarget.id;
+
+		if(confirm("이 작품을 관심작품에서 삭제하시겠습니까?")){
+			$.ajax({
+				url: '/delete_like_work',
+				dataType: 'json',
+				async: true,
+				type: 'POST',
+				contentType: 'application/json; charset=UTF-8',
+				data: JSON.stringify({
+					"faw_id" : faw_id
+				}),
+				success: function () {
+				
+				},
+				error: function (err) {
+					alert(err);
+				}
+			}); 
+
+			alert("삭제하였습니다!");
+			location.reload();
+
+		} else{
+			return;
+		}
+		
 	});
 
 	// 토큰 삭제 클릭
